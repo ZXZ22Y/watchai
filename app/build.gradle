@@ -1,0 +1,24 @@
+plugins {
+    id 'com.android.application'
+}
+android {
+    namespace 'com.example.watchai'
+    compileSdk 34
+    defaultConfig {
+        applicationId "com.example.watchai"
+        minSdk 26
+        targetSdk 34
+        versionCode 22
+        versionName "2.2"
+    }
+    buildTypes {
+        release { minifyEnabled false }
+        debug { minifyEnabled false }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+dependencies {
+}

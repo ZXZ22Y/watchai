@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 由系统深浅色模式自动选择：普通模式为浅色 -->
+    <bool name="is_night">false</bool>
+</resources>

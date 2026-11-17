@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 系统深色模式启用时，此资源被选中 -->
+    <bool name="is_night">true</bool>
+</resources>

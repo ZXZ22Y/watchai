@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>腕上智析</title>
+<style>
+:root{
+  --bg:#000;--card:#1c1c1e;--card2:#2c2c2e;--text:#fff;--sub:#8e8e93;--sub2:#636366;
+  --line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.13);
+  --track:rgba(255,255,255,.08);--tint:rgba(255,255,255,.06);--tint2:rgba(255,255,255,.1);
+  --glass1:rgba(70,70,82,.55);--glass2:rgba(28,28,34,.62);--glassB:rgba(255,255,255,.16);
+  --glassHi:rgba(255,255,255,.28);--hero1:rgba(94,92,230,.28);--hero2:rgba(10,132,255,.18);
+  --heroBgA:#202024;--heroBgB:#161618;--mapbg:#0d0d10;--diag:#111;
+  --onhero:#fff;--onhero2:#a9a9b2;--onhero3:#c7c7cf;--ondark:#fff;
+  --red:#ff453a;--green:#30d158;--blue:#0a84ff;
+  --purple:#bf5af2;--orange:#ff9f0a;--yellow:#ffd60a;--mint:#66d4c2;--teal:#40c8e0;--indigo:#5e5ce6;
+}
+/* 浅色主题：跟随系统 */
+:root.light{
+  --bg:#f2f2f7;--card:#ffffff;--card2:#f2f2f7;--text:#1c1c1e;--sub:#6e6e73;--sub2:#8e8e93;
+  --line:rgba(0,0,0,.07);--line2:rgba(0,0,0,.12);
+  --track:rgba(0,0,0,.08);--tint:rgba(0,0,0,.04);--tint2:rgba(0,0,0,.07);
+  --glass1:rgba(255,255,255,.72);--glass2:rgba(255,255,255,.55);--glassB:rgba(255,255,255,.9);
+  --glassHi:rgba(255,255,255,1);--hero1:rgba(94,92,230,.16);--hero2:rgba(10,132,255,.1);
+  --heroBgA:#ffffff;--heroBgB:#f0f0f6;--mapbg:#e9e9ef;--diag:#f2f2f7;
+  --onhero:#1c1c1e;--onhero2:#6e6e73;--onhero3:#3a3a3c;--ondark:#fff;
+  --red:#ff3b30;--green:#28a745;--blue:#007aff;--purple:#af52de;
+  --orange:#ff9500;--yellow:#d4a800;--mint:#3aa89a;--teal:#1fa8c4;--indigo:#5e5ce6;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue",sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none;transition:background .25s,color .25s}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+#app{max-width:520px;margin:0 auto;min-height:100vh;position:relative}
+.pad{padding:0 18px calc(122px + env(safe-area-inset-bottom))}
+
+/* header */
+.hd{display:flex;justify-content:space-between;align-items:flex-end;
+  padding:calc(12px + env(safe-area-inset-top)) 20px 12px;position:sticky;top:0;z-index:6;
+  background:linear-gradient(var(--bg) 66%,transparent)}
+.eyebrow{font-size:10px;letter-spacing:1.7px;color:var(--sub2);font-weight:700;text-transform:uppercase}
+.title{font-size:31px;font-weight:800;letter-spacing:-.9px;margin-top:3px}
+.hdate{font-size:12px;color:var(--sub);font-weight:600;padding-bottom:6px;text-align:right;line-height:1.5}
+.hdate .tm{display:block;color:var(--sub2);font-size:10px}
+.syncbtn{display:inline-block;margin-left:5px;font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;padding:1px 6px;border-radius:8px;vertical-align:middle}
+.syncbtn:active{background:var(--blue);color:#fff}
+.syncbtn.spin{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:14px;
+  animation:rise .38s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ctitle{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--sub);
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px}
+.ctitle i{width:8px;height:8px;border-radius:3px;display:inline-block}
+.ctitle .more{margin-left:auto;font-size:12px;color:var(--blue);text-transform:none;letter-spacing:0}
+.tap{transition:transform .15s,filter .15s}
+.tap:active{transform:scale(.975);filter:brightness(1.12)}
+
+/* ===== readiness hero (replaces big rings) ===== */
+.hero{border-radius:26px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;
+  background:radial-gradient(120% 100% at 100% 0,var(--hero1),transparent 55%),
+             radial-gradient(100% 90% at 0 100%,var(--hero2),transparent 55%),
+             linear-gradient(160deg,var(--heroBgA),var(--heroBgB));
+  border:1px solid var(--line2);
+  box-shadow:inset 0 1px 0 var(--tint2),0 12px 34px rgba(0,0,0,.18);
+  animation:rise .4s both}
+.hero .cap{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--onhero2);text-transform:uppercase}
+.hero-main{display:flex;align-items:center;gap:18px;margin:12px 0 4px}
+.ready-arc{width:118px;height:118px;flex-shrink:0}
+.hero-num{font-size:56px;font-weight:800;letter-spacing:-2px;line-height:.95}
+.hero-num small{font-size:17px;color:var(--sub);font-weight:600;letter-spacing:0}
+.hero-tag{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;padding:4px 12px;border-radius:14px}
+.hero-sub{font-size:12.5px;color:var(--onhero3);line-height:1.55;margin-top:12px;
+  border-top:1px solid var(--line);padding-top:12px}
+.hero-sub b{color:var(--onhero);font-weight:700}
+.parts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.part{flex:1;min-width:66px;background:var(--tint);border:1px solid var(--line);
+  border-radius:12px;padding:8px 9px}
+.part .pk{font-size:10px;color:var(--sub)}
+.part .pv{font-size:14px;font-weight:800;margin-top:3px}
+.part .pv small{font-size:10px;color:var(--sub2);font-weight:600}
+
+/* activity rings — Apple Fitness 风格：鲜活渐变 + 端点高光 + 柔和发光 */
+.ring3new{display:flex;flex-direction:column;align-items:center;padding:4px 0 0}
+.ring3-stage{position:relative;width:212px;height:212px;display:flex;align-items:center;justify-content:center}
+.ring3-stage::before{content:'';position:absolute;inset:14px;border-radius:50%;background:radial-gradient(circle at 50% 40%,rgba(0,0,0,.28),rgba(0,0,0,0) 70%);pointer-events:none}
+:root.light .ring3-stage::before{background:radial-gradient(circle at 50% 40%,rgba(0,0,0,.05),rgba(0,0,0,0) 70%)}
+.ring3{width:212px;height:212px;display:block;position:relative;z-index:1}
+.ring3-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;width:100%;margin-top:18px}
+.r3chip{position:relative;overflow:hidden;background:var(--card2);border:1px solid var(--line);border-radius:15px;padding:11px 10px 10px;display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.r3chip::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;background:var(--rc)}
+.r3cdot{width:9px;height:9px;border-radius:50%;margin-bottom:3px;box-shadow:0 0 8px var(--rc),0 1px 3px rgba(0,0,0,.2);background:var(--rc)}
+.r3cname{font-size:10px;color:var(--sub);letter-spacing:.3px;font-weight:600}
+.r3cval{font-size:18px;font-weight:800;letter-spacing:-.5px;line-height:1.1;color:var(--text)}
+.r3cval small{font-size:9px;color:var(--sub2);font-weight:600;margin-left:2px}
+.r3cpct{font-size:10px;color:var(--rc);font-weight:700}
+
+/* stat grid */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:15px 16px;animation:rise .4s both}
+.stat .k{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);font-weight:600}
+.stat .k i{width:7px;height:7px;border-radius:50%}
+.stat .k .ar{margin-left:auto;color:var(--sub2);font-size:13px}
+.stat .v{font-size:27px;font-weight:800;margin-top:8px;letter-spacing:-.5px;line-height:1}
+.stat .v small{font-size:13px;font-weight:600;color:var(--sub);margin-left:3px}
+.stat .note{font-size:11px;color:var(--sub2);margin-top:6px}
+
+/* charts */
+.chart{width:100%;display:block}
+.bar-x{display:flex;justify-content:space-between;font-size:10px;color:var(--sub2);margin-top:6px}
+
+/* score ring */
+.score-wrap{display:flex;flex-direction:column;align-items:center;padding:4px 0 2px}
+.score-ring{width:200px;height:200px}
+.score-grade{margin-top:-10px;font-size:13px;font-weight:700;padding:5px 18px;border-radius:20px}
+
+/* stages */
+.stagebar{display:flex;height:13px;border-radius:7px;overflow:hidden;gap:2px}
+.stagebar span{display:block}
+.stages-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+.sl{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub)}
+.sl i{width:9px;height:9px;border-radius:3px}
+.sl b{color:var(--text);font-weight:700}
+.stage-detail{margin-top:14px;border-top:1px solid var(--line);padding-top:6px}
+.sdrow{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12px}
+.sdrow:last-child{border-bottom:none}
+.sdrow i{width:8px;height:8px;border-radius:3px;flex-shrink:0}
+.sdrow .nm{width:44px;color:var(--sub)}
+.sdrow .bar{flex:1;height:6px;border-radius:3px;background:var(--track);overflow:hidden}
+.sdrow .bar em{display:block;height:100%;border-radius:3px}
+.sdrow .tm{width:74px;text-align:right;color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
+.sdrow .pc{width:38px;text-align:right;color:var(--sub2);font-size:11px}
+
+/* sleep summary on home */
+.sleep-sum{display:flex;gap:14px;align-items:center}
+.ss-ring{width:84px;height:84px;flex-shrink:0}
+.ss-ring .ready-ring{margin:0}
+.ss-body{flex:1;min-width:0}
+.ss-line{font-size:12px;color:var(--sub);line-height:1.5}
+.ss-line b{color:var(--text);font-size:14px;font-weight:800}
+/* 睡眠卡片新版：无圆环、大字时长 + 柔和分期 + 睡眠债徽章 */
+.sleep-hero{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sh-left{min-width:0}
+.sh-time{font-size:34px;font-weight:800;letter-spacing:-1px;line-height:1.05;color:var(--text)}
+.sh-sub{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.sh-grade{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px}
+.sh-hrv{font-size:11px;color:var(--sub)}
+.sh-score{text-align:center;flex-shrink:0;padding-left:14px;border-left:1px solid var(--line)}
+.sh-score .n{font-size:30px;font-weight:800;line-height:1}
+.sh-score .l{font-size:10px;color:var(--sub);margin-top:4px}
+.debt-badge{display:flex;align-items:center;gap:8px;margin-top:13px;padding:9px 11px;border-radius:11px;font-size:11.5px;line-height:1.4}
+.debt-badge b{font-weight:800}
+.debt-badge .di{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+.debt-badge.ok{background:var(--tint);color:var(--sub)}
+.debt-badge.ok .di{background:rgba(102,212,194,.18);color:var(--mint)}
+.debt-badge.warn{background:rgba(255,159,10,.09);color:var(--sub)}
+.debt-badge.warn .di{background:rgba(255,159,10,.2);color:var(--orange)}
+.debt-badge.good{background:rgba(48,209,88,.09);color:var(--sub)}
+.debt-badge.good .di{background:rgba(48,209,88,.18);color:var(--green)}
+/* metric grid */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mcell{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.mcell .k{font-size:12px;color:var(--sub)}
+.mcell .v{font-size:22px;font-weight:800;margin-top:6px;letter-spacing:-.4px}
+.mcell .v small{font-size:12px;font-weight:600;color:var(--sub)}
+.mcell .d{font-size:10px;color:var(--sub2);margin-top:4px}
+
+/* breakdown */
+.brk{margin-bottom:13px}
+.brk:last-child{margin-bottom:0}
+.brk .top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+.brk .n{color:var(--sub)}.brk .s{font-weight:700}
+.brk .track{height:7px;background:var(--track);border-radius:4px;overflow:hidden}
+.brk .fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+
+/* advice */
+.advice{display:flex;gap:10px;font-size:13px;line-height:1.6;color:var(--sub);margin-bottom:11px}
+.advice:last-child{margin-bottom:0}
+.advice .dot{color:var(--green);font-weight:800;flex-shrink:0}
+.narrative{font-size:13.5px;line-height:1.8;color:var(--text);white-space:pre-wrap}
+
+/* sleep cycle & quality */
+.cyc-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 2px 10px}
+.cyc-big{font-size:34px;font-weight:700;letter-spacing:-1px;color:var(--text)}
+.cyc-big small{font-size:13px;color:var(--sub2);font-weight:600;letter-spacing:0}
+.cyc-dots{display:flex;align-items:flex-end;gap:5px;height:40px}
+.cyc-dot{width:9px;height:36px;border-radius:5px;background:var(--track);overflow:hidden;display:flex;align-items:flex-end}
+.cyc-dot i{display:block;width:100%;background:linear-gradient(180deg,#8E92F0,#6C6FE8);border-radius:5px;transition:height .8s}
+.cyc-note{font-size:12px;color:var(--sub2);line-height:1.6}
+.qgrade{display:inline-flex;align-items:center;padding:7px 16px;border-radius:11px;font-size:14px;font-weight:800;letter-spacing:.5px;border:1px solid}
+.qflags{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.qflag{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:11px;background:var(--card2);border:1px solid var(--line);font-size:11px}
+.qflag i{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:10px;font-weight:800;flex-shrink:0}
+.qflag.ok i{background:rgba(48,209,88,.16);color:var(--green)}
+.qflag.no i{background:rgba(255,159,10,.16);color:var(--orange)}
+.qflag .qn{font-weight:700;color:var(--text);flex-shrink:0}
+.qflag .qd{color:var(--sub2);margin-left:auto;text-align:right}
+
+/* exercise */
+.week4{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.exitem{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:15px 16px;margin-bottom:12px;animation:rise .35s both}
+.exhead{display:flex;align-items:center;gap:12px}
+.badge{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+.exname{font-size:16px;font-weight:700}
+.exdate{font-size:11px;color:var(--sub);margin-top:3px}
+.exdist{margin-left:auto;text-align:right}
+.exdist .a{font-size:21px;font-weight:800;letter-spacing:-.4px}
+.exdist .b{font-size:11px;color:var(--sub);margin-top:2px}
+/* 主流运动版式：大号配速主指标 */
+.pace-hero{text-align:center;margin:18px 0 2px;padding:18px 12px 16px;border-radius:18px;background:linear-gradient(160deg,var(--card2),var(--card))}
+.ph-main{font-size:58px;font-weight:800;letter-spacing:-2px;line-height:1;color:var(--green)}
+.ph-main small{font-size:16px;color:var(--sub);letter-spacing:0;font-weight:600;margin-left:4px}
+.ph-sub{font-size:12px;color:var(--sub);margin-top:4px;font-weight:600}
+.ph-row{display:flex;justify-content:center;gap:40px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.ph-row div{display:flex;flex-direction:column;gap:3px}
+.ph-row b{font-size:22px;font-weight:800;letter-spacing:-.4px}
+.ph-row span{font-size:10px;color:var(--sub2)}
+.tri-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px;text-align:center}
+.tri-grid>div{padding:6px 2px}
+.tg-v{font-size:21px;font-weight:800;letter-spacing:-.5px;line-height:1.2}
+.tg-u{font-size:10px;color:var(--sub);margin-top:5px}
+.exchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{font-size:11px;color:var(--sub);background:var(--card2);border:1px solid var(--line);padding:5px 10px;border-radius:11px}
+.chip b{color:var(--text);font-weight:700}
+/* running dynamics grid */
+.dyn{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dyncell{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 13px}
+.dyncell .k{font-size:11px;color:var(--sub)}
+.dyncell .v{font-size:19px;font-weight:800;margin-top:5px;letter-spacing:-.4px}
+.dyncell .v small{font-size:11px;color:var(--sub);font-weight:600}
+.dyncell .j{font-size:10px;color:var(--mint);margin-top:4px}
+/* 心率区间分布（主流运动 App 标配 Z1–Z5） */
+.zones{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+.zone-row{display:flex;align-items:center;gap:9px}
+.zone-tag{width:40px;flex-shrink:0;font-size:11px;font-weight:800;color:var(--text)}
+.zone-track{position:relative;flex:1;height:20px;background:var(--card2);border-radius:7px;overflow:hidden}
+.zone-track .zf{position:absolute;left:0;top:0;bottom:0;border-radius:7px;transition:width .7s}
+.zone-meta{width:96px;flex-shrink:0;text-align:right;font-size:11px;color:var(--sub)}
+.zone-meta b{color:var(--text);font-weight:800}
+.zone-meta .pct{display:inline-block;min-width:32px;color:var(--sub2)}
+.zone-bar{display:flex;height:11px;border-radius:6px;overflow:hidden;margin:12px 0 5px;gap:2px}
+.zone-bar span{height:100%}
+.zone-summary{display:flex;justify-content:space-between;font-size:10px;color:var(--sub2)}
+/* track map */
+.mapbox{border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--mapbg);position:relative}
+.mapbox svg{width:100%;display:block}
+/* 真实卫星影像底图：容器按 320:210 比例，瓦片层与轨迹 SVG 共用像素坐标系 */
+.satmap{aspect-ratio:320/210;background:#1a2418}
+.sat-layer{position:absolute;inset:0;overflow:hidden}
+.sat-tile{position:absolute;width:256px;height:256px;max-width:none;display:block}
+.sat-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.16))}
+.satmap .sat-track{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sat-credit{position:absolute;right:8px;bottom:8px;font-size:8px;color:rgba(255,255,255,.72);text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.maplegend{position:absolute;left:12px;bottom:10px;display:flex;gap:12px;font-size:10px;color:#e8e8ee;
+  background:rgba(0,0,0,.5);padding:5px 9px;border-radius:9px;backdrop-filter:blur(6px)}
+.maplegend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.speed-legend{position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:5px;font-size:9px;color:#fff;
+  background:rgba(0,0,0,.62);padding:6px 9px;border-radius:9px;backdrop-filter:blur(6px);font-variant-numeric:tabular-nums}
+.speed-legend .sl-t{font-weight:700;opacity:.9}
+.speed-legend .sl-bar{display:inline-block;width:66px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,rgb(43,108,255),rgb(0,200,205),rgb(48,209,88),rgb(255,214,10),rgb(255,69,58))}
+.speed-legend .sl-lo,.speed-legend .sl-hi{opacity:.92}
+.speed-legend .sl-sep{opacity:.5;margin:0 2px}
+.speed-legend .sl-start,.speed-legend .sl-end{display:inline-block;width:7px;height:7px;border-radius:50%;vertical-align:middle;margin-right:2px}
+.speed-legend .sl-start{background:#30d158}.speed-legend .sl-end{background:#ff453a}
+.mapprow{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sub);margin-bottom:8px}
+.mapprow .pin{color:var(--red);font-size:13px}
+/* per-km split pace bars */
+.splitbar{display:flex;align-items:flex-end;gap:6px;height:104px;padding:6px 2px 0;overflow-x:auto}
+.split-item{flex:1;min-width:30px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.split-track{width:100%;max-width:26px;flex:1;display:flex;align-items:flex-end;background:var(--track);border-radius:6px 6px 3px 3px;overflow:hidden}
+.split-fill{width:100%;background:linear-gradient(180deg,#FF9A8B,#F26072);border-radius:6px 6px 3px 3px;transition:height .7s}
+.split-km{font-size:10px;color:var(--sub);font-weight:700}
+.split-pace{font-size:10px;color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
+.split-sum{font-size:11px;color:var(--sub2);line-height:1.6;margin-top:10px}
+/* curve card */
+.curvecard{margin-bottom:12px}
+.curvelabel{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-bottom:4px}
+.curvelabel b{color:var(--text);font-size:13px}
+
+/* AI */
+.ready-wrap{display:flex;align-items:center;gap:16px}
+.ready-ring{width:104px;height:104px;flex-shrink:0}
+.ready-tx{flex:1}
+.ready-h{font-size:18px;font-weight:800;line-height:1.3;letter-spacing:-.3px}
+.ready-l{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;margin-top:8px}
+.aisummary{font-size:14px;line-height:1.85;color:var(--text);white-space:pre-wrap}
+.todaytip{font-size:13px;line-height:1.7;color:var(--sub)}
+.ins{display:flex;gap:12px;align-items:flex-start}
+.ins .ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+.ins h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.ins p{font-size:12px;line-height:1.65;color:var(--sub)}
+.qa{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:10px;background:var(--card2)}
+.qa .q{display:flex;align-items:center;gap:8px;padding:14px 15px;font-size:13px;font-weight:600;cursor:pointer}
+.qa .q .pm{margin-left:auto;color:var(--blue);font-size:18px;font-weight:400;transition:transform .25s}
+.qa.open .q .pm{transform:rotate(45deg)}
+.qa .a{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.qa.open .a{max-height:480px}
+.qa .a-in{padding:0 15px 15px;font-size:13px;line-height:1.75;color:var(--sub)}
+
+/* device */
+.srow{display:flex;align-items:center;gap:11px;padding:9px 0}
+.srow .mk{width:26px;height:26px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.srow .lb{font-size:14px;font-weight:600}
+.srow .dt{margin-left:auto;font-size:11px;color:var(--sub);max-width:56%;text-align:right}
+.diagbox{background:var(--diag);border:1px solid var(--line);border-radius:14px;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:10px;line-height:1.75;color:var(--sub);max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin-bottom:12px}
+.diagbox .ok{color:var(--green)}.diagbox .er{color:var(--red)}
+.btn{display:block;width:100%;text-align:center;padding:13px;border-radius:15px;font-size:14px;font-weight:700;border:1px solid;background:transparent;cursor:pointer;margin-top:10px}
+
+/* empty */
+.empty{text-align:center;padding:60px 26px;animation:rise .4s both}
+.empty .ico{font-size:52px;margin-bottom:16px;opacity:.85}
+.empty h2{font-size:21px;font-weight:800;margin-bottom:12px}
+.empty p{font-size:13px;color:var(--sub);line-height:1.85}
+
+/* ===== liquid-glass bottom tabs ===== */
+.tabs-wrap{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:0 14px calc(12px + env(safe-area-inset-bottom));pointer-events:none}
+.tabs{max-width:492px;margin:0 auto;pointer-events:auto;display:flex;justify-content:space-around;gap:3px;
+  padding:7px;border-radius:26px;position:relative;
+  background:linear-gradient(135deg,var(--glass1),var(--glass2));
+  backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--glassB);
+  box-shadow:0 12px 40px rgba(0,0,0,.3),inset 0 1px 0 var(--glassB),inset 0 -1px 0 var(--tint)}
+.tabs::before{content:"";position:absolute;inset:0;border-radius:26px;padding:1px;pointer-events:none;
+  background:linear-gradient(140deg,var(--glassHi),transparent 40%,transparent 70%,var(--tint2));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 7px;cursor:pointer;
+  border-radius:19px;color:var(--sub2);position:relative;transition:background .25s,color .25s}
+.tab.on{background:var(--tint2);
+  box-shadow:inset 0 1px 0 var(--glassB),0 4px 14px rgba(0,0,0,.12)}
+.tab .ic{font-size:19px;line-height:1;filter:grayscale(1);opacity:.55;transition:.25s}
+:root.light .tab .ic{filter:none;opacity:.55}
+.tab.on .ic{filter:none;opacity:1}
+.tab .nm{font-size:10px;font-weight:700}
+.tab.on .nm{color:var(--text)}
+
+/* detail / sub page */
+.subbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 12px;
+  position:sticky;top:0;z-index:7;background:linear-gradient(var(--bg) 70%,transparent)}
+.back{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:var(--tint);border:1px solid var(--line);font-size:22px;cursor:pointer;flex-shrink:0;color:var(--text)}
+.subtt{font-size:19px;font-weight:800;letter-spacing:-.4px}
+.bigmetric{text-align:center;padding:14px 0 6px}
+.bigmetric .n{font-size:64px;font-weight:800;letter-spacing:-2px;line-height:1}
+.bigmetric .n small{font-size:18px;color:var(--sub);letter-spacing:0;font-weight:600}
+.bigmetric .l{font-size:12px;color:var(--sub);margin-top:8px}
+.segdesc{font-size:12.5px;line-height:1.7;color:var(--sub)}
+.kvrow{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
+.kvrow:last-child{border-bottom:0}
+.kvrow .k{color:var(--sub)}
+.kvrow .v{font-weight:700}
+.hint{font-size:11px;color:var(--sub2);line-height:1.6;text-align:center;margin:6px 2px 14px}
+/* 联网 AI */
+.ai-input{width:100%;min-height:74px;resize:vertical;background:var(--card2);border:1px solid var(--line);border-radius:12px;
+  color:var(--text);font-size:13px;line-height:1.6;padding:11px 12px;font-family:inherit;outline:none}
+.ai-input:focus{border-color:var(--indigo)}
+.ai-actions{display:flex;gap:10px;margin-top:10px}
+.btn.sm{flex:1;text-align:center;font-size:12.5px;padding:10px 8px}
+.ai-result{margin-top:12px}
+.ai-thinking{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--sub);padding:14px 4px}
+.dotpulse{width:9px;height:9px;border-radius:50%;background:var(--indigo);animation:pulse 1.1s infinite}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+.cloud-answer{font-size:13px;line-height:1.85;color:var(--text);white-space:pre-wrap;background:var(--card2);
+  border:1px solid var(--indigo);border-radius:13px;padding:13px 14px;animation:rise .3s both}
+/* AI 深度报告 */
+.report-btn{width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 12px;
+  color:#fff;border:1px solid var(--indigo);border-radius:14px;
+  background:linear-gradient(135deg,var(--indigo),var(--purple));box-shadow:0 8px 22px rgba(94,92,230,.28)}
+.report-btn span{font-size:14px;font-weight:800}
+.report-btn small{font-size:10px;opacity:.82;font-weight:600}
+.report-btn:active{transform:scale(.98)}
+.rpt{margin-top:4px;animation:rise .35s both}
+.rpt-sec{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-bottom:10px}
+.rpt-sec:last-child{margin-bottom:0}
+.rpt-h{font-size:13px;font-weight:800;color:var(--indigo);margin-bottom:7px;padding-left:9px;position:relative}
+.rpt-h:before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:3px;border-radius:2px;background:var(--indigo)}
+:root.light .rpt-h{color:#5e5ce6}
+.rpt-sec p{font-size:12.5px;line-height:1.8;color:var(--text);opacity:.92;margin:0 0 6px}
+.rpt-sec p:last-child{margin-bottom:0}
+/* 专业跑步指标 */
+.perf-duo{display:flex;gap:12px}
+.perf-cell{flex:1;background:var(--tint);border:1px solid var(--line);border-radius:16px;padding:14px 8px;text-align:center}
+.perf-ring{width:84px;height:84px;margin:0 auto 6px}
+.perf-ring svg{width:100%;height:100%}
+.perf-k{font-size:12px;font-weight:700;color:var(--text)}
+.perf-l{font-size:10px;color:var(--sub2);margin-top:2px}
+.perf-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;margin-top:8px}
+.perf-peer{font-size:10px;color:var(--sub);margin-top:6px;line-height:1.4}
+.pred-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pred-cell{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.pred-cell .k{font-size:11px;color:var(--sub)}
+.pred-cell .v{font-size:19px;font-weight:800;margin-top:3px;color:var(--text)}
+/* 个人最佳 PB */
+.pb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pb-cell{position:relative;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 13px;overflow:hidden}
+.pb-cell .pk{font-size:11px;color:var(--sub);display:flex;align-items:center;gap:5px}
+.pb-cell .pv{font-size:22px;font-weight:800;margin-top:6px;letter-spacing:-.5px;line-height:1}
+.pb-cell .pv small{font-size:11px;color:var(--sub);font-weight:600;margin-left:2px}
+.pb-cell .pd{font-size:10px;color:var(--sub2);margin-top:6px}
+.pb-cell .crown{position:absolute;right:10px;top:10px;font-size:14px;opacity:.85}
+/* 模态设置 */
+.modal{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:22px}
+.modal-box{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:rise .3s both}
+.modal-h{font-size:17px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.modal-h .x{font-size:20px;color:var(--sub);cursor:pointer;padding:2px 8px}
+.fl{display:block;font-size:11px;color:var(--sub);margin:12px 0 5px;font-weight:700}
+.fi{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);
+  font-size:13px;padding:10px 11px;outline:none;font-family:inherit}
+.fi:focus{border-color:var(--blue)}
+.seg2{display:flex;gap:10px}
+.seg2 label{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--card2);
+  border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer}
+.seg2 input{accent-color:var(--purple);width:16px;height:16px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header" class="hd"></div>
+  <div id="page" class="pad"></div>
+</div>
+<div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
+
+<script>
+var DATA=null, DIAG=null, cur=0, detail=null, exOpen=-1, updatedAt=0;
+var NIGHT=true; // 由系统注入
+var C={red:'#ff453a',green:'#30d158',blue:'#0a84ff',purple:'#bf5af2',orange:'#ff9f0a',yellow:'#ffd60a',mint:'#66d4c2',teal:'#40c8e0',indigo:'#5e5ce6'};
+// 睡眠分期专用配色：同一蓝紫色系的深浅 + 薄荷 + 暖橙，柔和协调
+var SLEEP={deep:'#6C6FE8',light:'#8E92F0',rem:'#54C6B0',awake:'#E8A85C'};
+var EXC=[C.red,C.blue,C.green,C.orange,C.purple,C.mint];
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function num(n){return (n||0).toLocaleString('en-US')}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+
+function loadData(d,g,ts){
+  try{DATA=d?(typeof d==='string'?JSON.parse(d):d):null}catch(e){DATA=null}
+  try{DIAG=g?(typeof g==='string'?JSON.parse(g):g):null}catch(e){DIAG=null}
+  // ts 来自 Android 缓存/本次读取的真实时间戳；无则退回当前时间
+  updatedAt=(typeof ts==='number'&&ts>0)?ts:Date.now();
+  render();
+}
+window.loadData=loadData;
+/** 由 Android 注入：true=深色 false=浅色，跟随系统 */
+window.__setNight=function(n){
+  NIGHT=!!n;
+  if(NIGHT)document.documentElement.classList.remove('light');
+  else document.documentElement.classList.add('light');
+  // 颜色常量随主题微调
+  C.red=NIGHT?'#ff453a':'#ff3b30';C.green=NIGHT?'#30d158':'#28a745';C.blue=NIGHT?'#0a84ff':'#007aff';
+  C.purple=NIGHT?'#bf5af2':'#af52de';C.orange=NIGHT?'#ff9f0a':'#ff9500';C.yellow=NIGHT?'#ffd60a':'#d4a800';
+  C.mint=NIGHT?'#66d4c2':'#3aa89a';C.teal=NIGHT?'#40c8e0':'#1fa8c4';C.indigo='#5e5ce6';
+  EXC=[C.red,C.blue,C.green,C.orange,C.purple,C.mint];
+  render();
+};
+window.__touch=function(){updatedAt=Date.now();var e=document.getElementById('upd');if(e)e.textContent=ago()};
+window.__reload=function(){if(window.Android&&Android.reload)Android.reload()};
+window.__syncNow=function(){
+  var b=document.querySelector('.syncbtn'); if(b)b.classList.add('spin');
+  var u=document.getElementById('upd'); if(u)u.textContent='同步中…';
+  if(window.Android&&Android.syncNow)Android.syncNow();
+  else if(window.Android&&Android.reload)Android.reload();
+  else setTimeout(function(){window.__syncDone&&window.__syncDone()},800);
+};
+window.__copyDiag=function(){if(window.Android&&Android.copyDiag)Android.copyDiag()};
+// 逆地理编码结果回填：按坐标缓存，异步更新地图地点文字
+var GEO_CACHE={};
+window.__geoResult=function(addr){
+  var key=GEO_PENDING;GEO_PENDING='';
+  if(!key||!addr)return;
+  GEO_CACHE[key]=addr;
+  var el=document.getElementById('geoAddr_'+key);
+  if(el)el.textContent=addr;
+};
+var GEO_PENDING='';
+window.__geoLookup=function(lat,lng,key){
+  if(GEO_CACHE[key]){
+    var e0=document.getElementById('geoAddr_'+key);if(e0)e0.textContent=GEO_CACHE[key];
+    return;
+  }
+  if(window.Android&&Android.reverseGeocode){GEO_PENDING=key;Android.reverseGeocode(lat,lng)}
+};
+window.__openMi=function(){if(window.Android&&Android.openMiHealth)Android.openMiHealth();else alert('请在手机上安装小米运动健康')};
+window.__openSettings=function(){if(window.Android&&Android.openAppSettings)Android.openAppSettings()};
+
+/* ---------- 同步状态反馈 ---------- */
+window.__syncDone=function(){ updatedAt=Date.now(); var e=document.getElementById('upd'); if(e)e.textContent=ago(); };
+
+/* ---------- 身体资料 ---------- */
+window.__getProfile=function(){
+  if(window.Android&&Android.getProfile){try{return JSON.parse(Android.getProfile())}catch(e){}}
+  return {age:0,height:0,weight:0,gender:'male',restHr:0};
+};
+window.__saveProfile=function(){
+  if(!(window.Android&&Android.setProfile))return;
+  function v(id){var e=document.getElementById(id);return e?e.value:''}
+  var age=parseInt(v('pfAge'))||0, height=parseInt(v('pfHeight'))||0;
+  var weight=parseFloat(v('pfWeight'))||0, restHr=parseInt(v('pfRestHr'))||0;
+  var genderEl=document.querySelector('input[name="pfGender"]:checked');
+  var gender=genderEl?genderEl.value:'male';
+  Android.setProfile(age,height,weight,gender,restHr);
+  closeProfile();
+  if(cur===3)render();
+};
+
+function days(){return (DATA&&DATA.days)?DATA.days:[]}
+function hasDays(){return days().some(function(d){return d.hasData||(d.sleep&&d.sleep.totalMinutes>0)||d.steps>0})}
+function latestDay(){var a=days();return a.length?a[a.length-1]:{}}
+function exercises(){return (DATA&&DATA.exercises)?DATA.exercises:[]}
+function coach(){return (DATA&&DATA.coach)?DATA.coach:null}
+function scores(){return (DATA&&DATA.scores)?DATA.scores:[]}
+function lastSleepDay(){var a=days();for(var i=a.length-1;i>=0;i--)if(a[i].sleep&&a[i].sleep.totalMinutes>0)return a[i];return null}
+function lastScore(){var a=scores();for(var i=a.length-1;i>=0;i--)if(a[i]&&a[i].score>0)return a[i];return null}
+function ago(){if(!updatedAt)return '';var s=Math.floor((Date.now()-updatedAt)/1000);if(s<10)return '刚刚更新';if(s<60)return s+' 秒前更新';if(s<3600)return Math.floor(s/60)+' 分钟前更新';return Math.floor(s/3600)+' 小时前更新'}
+
+/* ---------- svg builders ---------- */
+function bigRing(score,c1,c2,label){
+  var r=84,cir=2*Math.PI*r,p=clamp(score/100,0,1);
+  var TXT=NIGHT?'#fff':'#1c1c1e',TRK=NIGHT?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)';
+  return '<svg class="score-ring" viewBox="0 0 220 220"><defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+c2+'"/><stop offset="1" stop-color="'+c1+'"/></linearGradient></defs>'+
+   '<g transform="rotate(-90 110 110)"><circle cx="110" cy="110" r="'+r+'" fill="none" stroke="'+TRK+'" stroke-width="15"/>'+
+   (score>0?'<circle cx="110" cy="110" r="'+r+'" fill="none" stroke="url(#sg)" stroke-width="15" stroke-linecap="round" stroke-dasharray="'+cir.toFixed(1)+'" stroke-dashoffset="'+(cir*(1-p)).toFixed(1)+'" style="filter:drop-shadow(0 0 8px '+c1+'66);transition:stroke-dashoffset .9s"/>':'')+
+   '</g><text x="110" y="112" text-anchor="middle" font-size="60" font-weight="800" fill="'+TXT+'">'+score+'</text>'+
+   '<text x="110" y="146" text-anchor="middle" font-size="13" fill="#8e8e93" font-weight="600">'+label+'</text></svg>';
+}
+function readinessArc(v,show){
+  var c=v>=85?[C.green,C.mint]:v>=70?[C.blue,C.teal]:v>=55?[C.yellow,C.orange]:[C.red,'#ff6961'];
+  var cx=59,cy=59,r=48,cir=Math.PI*r,p=clamp(v/100,0,1);
+  // 半圆弧：从左(180°)到右(0°)
+  var bg='M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+cy;
+  var fg='M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+cy;
+  var TRK=NIGHT?'rgba(255,255,255,.09)':'rgba(0,0,0,.09)';
+  var center=show!=null?show:'READY';
+  return '<svg class="ready-arc" viewBox="0 0 118 118"><defs><linearGradient id="ra" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="'+c[1]+'"/><stop offset="1" stop-color="'+c[0]+'"/></linearGradient></defs>'+
+   '<path d="'+bg+'" fill="none" stroke="'+TRK+'" stroke-width="11" stroke-linecap="round"/>'+
+   '<path d="'+fg+'" fill="none" stroke="url(#ra)" stroke-width="11" stroke-linecap="round" stroke-dasharray="'+cir.toFixed(1)+'" stroke-dashoffset="'+(cir*(1-p)).toFixed(1)+'" style="filter:drop-shadow(0 0 6px '+c[0]+'66);transition:stroke-dashoffset .9s"/>'+
+   '<text x="59" y="72" text-anchor="middle" font-size="9" fill="#8e8e93" font-weight="600">'+center+'</text></svg>';
+}
+function miniRing(v,c1,size,showText){
+  size=size||104;var r=(size/2-9),cir=2*Math.PI*r,p=clamp(v/100,0,1);
+  var TXT=NIGHT?'#fff':'#1c1c1e',TRK=NIGHT?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)';
+  var label=showText!=null?showText:v;
+  return '<svg class="ready-ring" viewBox="0 0 '+size+' '+size+'" style="width:'+size+'px;height:'+size+'px"><g transform="rotate(-90 '+(size/2)+' '+(size/2)+')">'+
+   '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="'+TRK+'" stroke-width="8"/>'+
+   '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="'+c1+'" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+cir.toFixed(1)+'" stroke-dashoffset="'+(cir*(1-p)).toFixed(1)+'"/></g>'+
+   '<text x="'+(size/2)+'" y="'+(size/2+9)+'" text-anchor="middle" font-size="26" font-weight="800" fill="'+TXT+'">'+label+'</text></svg>';
+}
+/** 带 XY 轴的柱状图：Y 轴刻度+网格线，X 轴日期，每根柱子上方数值 */
+function barChart(vals,labels,color,hi){
+  var W=320,H=150,padL=38,padR=6,padT=18,padB=30;
+  var plotW=W-padL-padR,plotH=H-padT-padB;
+  var rawMax=Math.max.apply(null,vals.concat([1]));
+  // 先预留 12% 顶部空间，再让"每格刻度"取整洁值(1/2/2.5/5×10ⁿ)，上界=每格×格数
+  var TICKS=4;
+  var target=rawMax*1.12;
+  var grainRaw=target/TICKS;
+  var mag=Math.pow(10,Math.floor(Math.log(grainRaw)/Math.LN10));
+  var norm=grainRaw/mag;
+  var nice=[1,1.5,2,2.5,3,4,5,6,8,10],pick=10;
+  for(var q=0;q<nice.length;q++){if(nice[q]>=norm-1e-9){pick=nice[q];break}}
+  var grain=pick*mag;
+  var yMax=grain*TICKS;
+  if(!(yMax>0))yMax=1;
+  var baseY=padT+plotH;
+  var GL=NIGHT?'255,255,255':'0,0,0',AX=NIGHT?'#636366':'#9a9a9f',VTXT=NIGHT?'#b8b8be':'#6e6e73';
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">';
+  // Y 轴网格 + 刻度标注
+  for(var t=0;t<=TICKS;t++){
+    var val=yMax*t/TICKS;
+    var y=baseY-plotH*t/TICKS;
+    s+='<line x1="'+padL+'" y1="'+y.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y.toFixed(1)+'" stroke="rgba('+GL+','+(t===0?0.18:0.08)+')" stroke-width="1"/>';
+    var lab=val>=1000?(val/1000)+'k':(Math.round(val*10)/10);
+    s+='<text x="'+(padL-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end" font-size="9" fill="'+AX+'">'+lab+'</text>';
+  }
+  // X 轴基线
+  var bw=plotW/vals.length;
+  vals.forEach(function(v,i){
+    var bh=Math.max(2,(v/yMax)*plotH);
+    var x=padL+i*bw+bw*0.24,y=baseY-bh,bww=bw*0.52;
+    var op=(i===vals.length-1)?1:(hi===i?0.9:0.34);
+    s+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bww.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="3.5" fill="'+color+'" opacity="'+op+'"/>';
+    // 每根柱上方数值（有数据才显示）
+    if(v>0){
+      var txt=v>=10000?(v/1000).toFixed(1)+'k':num(v);
+      s+='<text x="'+(x+bww/2).toFixed(1)+'" y="'+(y-4).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="700" fill="'+(i===vals.length-1?VTXT:AX)+'">'+txt+'</text>';
+    }
+    // X 轴日期标签
+    s+='<text x="'+(x+bww/2).toFixed(1)+'" y="'+(H-9)+'" text-anchor="middle" font-size="9" fill="'+AX+'">'+labels[i]+'</text>';
+  });
+  return s+'</svg>';
+}
+/** 折线图：仅用有效值定范围、遇 0 断开分段、带 Y 轴刻度。unit=pace 时按 分'秒 格式化 */
+function lineChart(vals,color,fill,unit,axes){
+  if(!vals||vals.length<2)return '<div style="font-size:12px;color:var(--sub2);text-align:center;padding:14px">数据点不足</div>';
+  var valid=[];for(var i=0;i<vals.length;i++){var v=+vals[i];if(v>0&&isFinite(v))valid.push(v)}
+  if(!valid.length)return '<div style="font-size:12px;color:var(--sub2);text-align:center;padding:14px">暂无可绘制的数据</div>';
+  var lo=Math.min.apply(null,valid),hi=Math.max.apply(null,valid);
+  if(hi-lo<1e-6)hi=lo+1;
+  var pad=(hi-lo)*0.12,vmin=lo-pad,vmax=hi+pad,rg=vmax-vmin;
+  var W=320,H=(axes?128:96),padL=axes?34:0,padR=axes?8:0,padT=axes?12:8,padB=axes?18:0;
+  var plotW=W-padL-padR,plotH=H-padT-padB,baseY=padT+plotH;
+  function X(i){return padL+(i/(vals.length-1))*plotW}
+  function Y(v){return baseY-((v-vmin)/rg)*plotH}
+  function fmt(v){
+    if(unit==='pace'){var s=Math.round(v);return Math.floor(s/60)+"'"+('0'+(s%60)).slice(-2)}
+    return (Math.abs(v)>=100?Math.round(v):Math.round(v*10)/10)+'';
+  }
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">';
+  var GL=NIGHT?'255,255,255':'0,0,0',AX=NIGHT?'#636366':'#9a9a9f';
+  if(axes){
+    for(var t=0;t<=3;t++){
+      var val=vmin+rg*t/3,y=Y(val);
+      s+='<line x1="'+padL+'" y1="'+y.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y.toFixed(1)+'" stroke="rgba('+GL+','+(t===0?0.13:0.06)+')" stroke-width="1"/>';
+      s+='<text x="'+(padL-5)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end" font-size="9" fill="'+AX+'">'+fmt(val)+'</text>';
+    }
+    [0,Math.round((vals.length-1)/2),vals.length-1].forEach(function(k){
+      s+='<text x="'+X(k).toFixed(1)+'" y="'+(H-4)+'" text-anchor="middle" font-size="9" fill="'+AX+'">'+(k===0?'起点':(k===vals.length-1?'终点':Math.round(k/(vals.length-1)*100)+'%'))+'</text>';
+    });
+  }
+  // 连续有效段：遇到 <=0 断开，避免无效点连成断崖/尖刺
+  var segs=[],cur=[];
+  for(var i=0;i<vals.length;i++){
+    var v=+vals[i];
+    if(v>0&&isFinite(v))cur.push([X(i),Y(v)]);
+    else{if(cur.length){segs.push(cur);cur=[]}}
+  }
+  if(cur.length)segs.push(cur);
+  var gid='lg'+color.replace('#','');
+  if(fill!==false){s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+color+'3a"/><stop offset="1" stop-color="'+color+'00"/></linearGradient></defs>'}
+  segs.forEach(function(seg){
+    if(seg.length<2)return;
+    var d=seg.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)}).join(' ');
+    if(fill!==false){s+='<path d="'+d+' L '+seg[seg.length-1][0].toFixed(1)+' '+baseY+' L '+seg[0][0].toFixed(1)+' '+baseY+' Z" fill="url(#'+gid+')"/>'}
+    s+='<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
+  });
+  // 末点标记
+  var last=segs.length?segs[segs.length-1]:null;
+  if(last&&last.length){var lp=last[last.length-1];s+='<circle cx="'+lp[0].toFixed(1)+'" cy="'+lp[1].toFixed(1)+'" r="3.6" fill="'+color+'"/>'
+    if(axes)s+='<text x="'+(Math.min(lp[0]+6,W-padR-2)).toFixed(1)+'" y="'+(lp[1]-6).toFixed(1)+'" text-anchor="end" font-size="10" font-weight="700" fill="'+color+'">'+fmt(+vals[vals.length-1])+'</text>';}
+  return s+'</svg>';
+}
+/** 当天分时图：24 小时柱+折线，跳过无数据(-1)的小时，X 轴标 0/6/12/18/23 */
+function hourChart(ser,color){
+  if(!ser||!ser.length){return '<div style="font-size:12px;color:var(--sub2);text-align:center;padding:18px">暂无当天分时数据</div>'}
+  var W=320,H=132,padL=30,padR=8,padT=14,padB=24;
+  var plotW=W-padL-padR,plotH=H-padT-padB,baseY=padT+plotH;
+  var valid=ser.filter(function(v){return v>=0});
+  if(!valid.length){return '<div style="font-size:12px;color:var(--sub2);text-align:center;padding:18px">这天暂无分时记录</div>'}
+  var mx=Math.max.apply(null,valid),mn=Math.min.apply(null,valid);
+  var top=mx*1.15||1, bot=Math.max(0,mn-(mx-mn)*0.3||0);
+  var rng=(top-bot)||1;
+  var GL=NIGHT?'255,255,255':'0,0,0',AX=NIGHT?'#636366':'#9a9a9f';
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">';
+  // 网格 + Y 轴刻度
+  for(var t=0;t<=3;t++){
+    var val=bot+(top-bot)*t/3,y=baseY-plotH*t/3;
+    s+='<line x1="'+padL+'" y1="'+y.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y.toFixed(1)+'" stroke="rgba('+GL+','+(t===0?0.16:0.07)+')" stroke-width="1"/>';
+    var lab=val>=100?(Math.round(val)):(Math.round(val*10)/10);
+    s+='<text x="'+(padL-5)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end" font-size="9" fill="'+AX+'">'+lab+'</text>';
+  }
+  var bw=plotW/24,pts=[];
+  for(var h=0;h<24;h++){
+    var v=ser[h];if(v<0)continue;
+    var x=padL+h*bw+bw/2,bh=Math.max(2,(v-bot)/rng*plotH),y=baseY-bh;
+    s+='<rect x="'+(x-bw*0.32).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(bw*0.64).toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="2" fill="'+color+'" opacity="0.32"/>';
+    pts.push([x,y]);
+  }
+  if(pts.length>1){
+    var d=pts.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)}).join(' ');
+    s+='<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    s+='<circle cx="'+pts[pts.length-1][0].toFixed(1)+'" cy="'+pts[pts.length-1][1].toFixed(1)+'" r="3.5" fill="'+color+'"/>';
+  }
+  [0,6,12,18,23].forEach(function(h){
+    var x=padL+h*bw+bw/2;
+    s+='<text x="'+x.toFixed(1)+'" y="'+(H-7)+'" text-anchor="middle" font-size="9" fill="'+AX+'">'+('0'+h).slice(-2)+'</text>';
+  });
+  return s+'</svg>';
+}
+
+/** 中国主要城市中心经纬度（用于轨迹地点就近识别，离线可用） */
+var CITIES=[
+ ['北京',39.9042,116.4074],['上海',31.2304,121.4737],['广州',23.1291,113.2644],['深圳',22.5431,114.0579],
+ ['杭州',30.2741,120.1551],['成都',30.5728,104.0668],['武汉',30.5928,114.3055],['西安',34.3416,108.9398],
+ ['南京',32.0603,118.7969],['重庆',29.5630,106.5516],['天津',39.3434,117.3616],['苏州',31.2989,120.5853],
+ ['郑州',34.7466,113.6254],['长沙',28.2282,112.9388],['青岛',36.0671,120.3826],['沈阳',41.8057,123.4315],
+ ['大连',38.9140,121.6147],['厦门',24.4798,118.0894],['福州',26.0745,119.2965],['济南',36.6512,117.1201],
+ ['合肥',31.8206,117.2272],['昆明',25.0389,102.7183],['无锡',31.4912,120.3119],['宁波',29.8683,121.5440],
+ ['佛山',23.0218,113.1214],['东莞',23.0207,113.7518],['南宁',22.8170,108.3665],['贵阳',26.6470,106.6302],
+ ['哈尔滨',45.8038,126.5350],['长春',43.8171,125.3235],['石家庄',38.0428,114.5149],['太原',37.8706,112.5489],
+ ['南昌',28.6829,115.8582],['兰州',36.0611,103.8343],['海口',20.0442,110.1999],['三亚',18.2528,109.5119],
+ ['常州',31.7730,119.9741],['温州',27.9948,120.6994],['珠海',22.2707,113.5767],['中山',22.5170,113.3926],
+ ['香港',22.3193,114.1694],['台北',25.0330,121.5654]
+];
+function placeOf(lat,lng){
+  var best=null,bd=1e9;
+  for(var i=0;i<CITIES.length;i++){
+    var c=CITIES[i],d=Math.pow((lat-c[1])*Math.cos(lat*Math.PI/180),2)+Math.pow((lng-c[2]),2);
+    if(d<bd){bd=d;best=c}
+  }
+  // 1 经度≈95km，粗判距离
+  var km=Math.sqrt(bd)*95;
+  return {name:best[0],km:km};
+}
+/** 卫星风格轨迹地图：暗色地形底图（绿地/水域/路网纹理）+ 按速度上色轨迹 + 起终点；含地点文字 */
+// —— 坐标工具：WGS-84 → GCJ-02（高德/国内地图瓦片为 GCJ-02，轨迹需转换才能对齐）——
+function _oob(lat,lng){return !(lng>73.66&&lng<135.05&&lat>3.86&&lat<53.55)}
+function _tLat(x,y){var r=-100+2*x+3*y+.2*y*y+.1*x*y+.2*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3;r+=(20*Math.sin(y*Math.PI)+40*Math.sin(y/3*Math.PI))*2/3;r+=(160*Math.sin(y/12*Math.PI)+320*Math.sin(y/30*Math.PI))*2/3;return r}
+function _tLng(x,y){var r=300+x+2*y+.1*x*x+.1*x*y+.1*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3;r+=(20*Math.sin(x*Math.PI)+40*Math.sin(x/3*Math.PI))*2/3;r+=(150*Math.sin(x/12*Math.PI)+300*Math.sin(x/30*Math.PI))*2/3;return r}
+function wgs2gcj(lat,lng){
+  if(_oob(lat,lng))return [lat,lng];
+  var dLat=_tLat(lng-105,lat-35),dLng=_tLng(lng-105,lat-35);
+  var rad=lat/180*Math.PI,magic=Math.sin(rad);magic=1-0.00669342162296594323*magic*magic;var sq=Math.sqrt(magic);
+  dLat=(dLat*180)/((6378245*(1-0.00669342162296594323))/(magic*sq)*Math.PI);
+  dLng=(dLng*180)/(6378245/sq*Math.cos(rad)*Math.PI);
+  return [lat+dLat,lng+dLng];
+}
+/** 经纬度 → Web Mercator 浮点瓦片坐标 */
+function lonlat2tile(lat,lng,z){
+  var n=Math.pow(2,z),x=(lng+180)/360*n;
+  var r=Math.max(-85,Math.min(85,lat))*Math.PI/180;
+  var y=(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n;
+  return [x,y];
+}
+/** 按累计距离计算每整公里标记点（含该点速度/时间），供地图标点与分段统计共用 */
+function splitMarks(pts){
+  var out=[],acc=0,nextKm=1;
+  for(var i=1;i<pts.length;i++){
+    var a=pts[i-1],b=pts[i];
+    var dLat=(b[0]-a[0])*111320,dLng=(b[1]-a[1])*111320*Math.cos((a[0]+b[0])/2*Math.PI/180);
+    var seg=Math.sqrt(dLat*dLat+dLng*dLng);
+    if(seg<=0)continue;
+    while(acc+seg>=nextKm*1000){
+      var t=(nextKm*1000-acc)/seg;
+      var lat=a[0]+(b[0]-a[0])*t,lng=a[1]+(b[1]-a[1])*t;
+      var spd=a[2]+(b[2]-a[2])*t;
+      var tm=a[3]+(b[3]-a[3])*t;
+      out.push({km:nextKm,lat:lat,lng:lng,speed:spd,tMs:tm,idx:i});
+      nextKm++;
+      if(nextKm>100)break;
+    }
+    acc+=seg;
+  }
+  return out;
+}
+/** 分段配速/速度变化条：每公里的平均速度（km/h）与配速 */
+function splitPaceBar(track){
+  if(!track||track.length<2)return '';
+  var pts=[];
+  for(var i=0;i<track.length;i++){
+    var p=track[i];if(!p||!isFinite(+p[0])||!isFinite(+p[1]))continue;
+    if(+p[0]===0&&+p[1]===0)continue;
+    pts.push([+p[0],+p[1],+p[2]||0,+p[3]||0]);
+  }
+  var marks=splitMarks(pts);
+  if(!marks.length)return '';
+  // 每公里平均速度：第4字段 p[3] 是累计距离(米)，按公里区间取该段内所有点的速度均值(m/s)
+  var segs=[];
+  for(var s=0;s<marks.length;s++){
+    var lo=s*1000,hi=(s+1)*1000,sum=0,cnt=0;
+    for(var j=0;j<pts.length;j++){
+      var d=pts[j][3],v=pts[j][2];
+      if(d>=lo&&d<hi&&v>0.3&&v<15){sum+=v;cnt++}
+    }
+    var kmh=cnt>0?sum/cnt*3.6:0;
+    var pace=kmh>0?Math.round(3600/kmh):0;
+    segs.push({km:marks[s].km,kmh:kmh,pace:pace});
+  }
+  var maxK=Math.max.apply(null,segs.map(function(s){return s.kmh}).concat([1]));
+  var minK=Math.min.apply(null,segs.map(function(s){return s.kmh>0?s.kmh:maxK}));
+  var h='<div class="card"><div class="ctitle"><i style="background:'+C.orange+'"></i>分段速度 <span style="color:var(--sub2);font-weight:500;text-transform:none;letter-spacing:0;font-size:10px">· 每公里</span></div>';
+  h+='<div class="splitbar">';
+  segs.forEach(function(s){
+    var hp=clamp(s.kmh/maxK*100,6,100);
+    h+='<div class="split-item"><div class="split-track"><div class="split-fill" style="height:'+hp.toFixed(0)+'%"></div></div>'+
+       '<div class="split-km">'+s.km+'K</div><div class="split-pace">'+(s.pace?Math.floor(s.pace/60)+"'"+('0'+s.pace%60).slice(-2):'--')+'</div></div>';
+  });
+  h+='</div>';
+  h+='<div class="split-sum">最快 '+maxK.toFixed(1)+' km/h · 最慢 '+(isFinite(minK)?minK.toFixed(1):'--')+' km/h · 柱高代表每公里平均速度，下方为每公里配速</div>';
+  h+='</div>';
+  return h;
+}
+function trackSVG(track){
+  var NO='<div style="font-size:12px;color:var(--sub2);text-align:center;padding:24px">无 GPS 轨迹（室内运动或无定位信号）</div>';
+  if(!track||track.length<2)return NO;
+  // 1) 过滤无效 / 漂移点（0,0、NaN、越界）
+  var pts=[];
+  for(var i=0;i<track.length;i++){
+    var p=track[i];if(!p)continue;
+    var la=+p[0],ln=+p[1];
+    if(!isFinite(la)||!isFinite(ln))continue;
+    if(la===0&&ln===0)continue;
+    if(la<-90||la>90||ln<-180||ln>180)continue;
+    pts.push([la,ln,+p[2]||0,+p[3]||0]);
+  }
+  if(pts.length<2)return NO;
+  // 2) 剔除孤立漂移尖点，其余完整保留
+  var clean=[];
+  for(var i=0;i<pts.length;i++){
+    if(i===0||i===pts.length-1){clean.push(pts[i]);continue}
+    var a=pts[i-1],b=pts[i],cc=pts[i+1];
+    var dAB=Math.sqrt(Math.pow((a[0]-b[0])*111320,2)+Math.pow((a[1]-b[1])*111320*Math.cos(b[0]*Math.PI/180),2));
+    var dBC=Math.sqrt(Math.pow((b[0]-cc[0])*111320,2)+Math.pow((b[1]-cc[1])*111320*Math.cos(b[0]*Math.PI/180),2));
+    var dAC=Math.sqrt(Math.pow((a[0]-cc[0])*111320,2)+Math.pow((a[1]-cc[1])*111320*Math.cos(b[0]*Math.PI/180),2));
+    if(dAB>2000&&dBC>2000&&dAC<1000)continue;
+    clean.push(b);
+  }
+  if(clean.length<2)clean=pts;
+  // 3) WGS-84 → GCJ-02，与高德卫星瓦片坐标系一致
+  var gc=clean.map(function(p){var g=wgs2gcj(p[0],p[1]);return [g[0],g[1],p[2],p[3]]});
+  var lats=gc.map(function(p){return p[0]}),lngs=gc.map(function(p){return p[1]});
+  var minLat=Math.min.apply(null,lats),maxLat=Math.max.apply(null,lats);
+  var minLng=Math.min.apply(null,lngs),maxLng=Math.max.apply(null,lngs);
+  var cLat=(minLat+maxLat)/2,cLng=(minLng+maxLng)/2;
+  var W=320,H=210;
+  // 4) 选缩放级别：让轨迹跨度刚好落在视野内（视野约 1.25×0.82 个瓦片），从高清往低找
+  var z=18;
+  for(;z>=3;z--){
+    var a0=lonlat2tile(minLat,minLng,z),a1=lonlat2tile(maxLat,maxLng,z);
+    var spanX=Math.abs(a1[0]-a0[0]),spanY=Math.abs(a1[1]-a0[1]);
+    if(spanX<=1.15&&spanY<=0.72)break;
+  }
+  var cT=lonlat2tile(cLat,cLng,z),cxT=cT[0],cyT=cT[1];
+  // 5) 像素坐标：以视野中心对应的瓦片为原点
+  function xy(gp){
+    var t=lonlat2tile(gp[0],gp[1],z);
+    return [(t[0]-cxT)*256+W/2,(t[1]-cyT)*256+H/2];
+  }
+  var cos=Math.cos(cLat*Math.PI/180);
+  // 只用有效速度(<15m/s,>0.3)算范围，避免 GPS 漂移的 0 值把色阶拉平
+  var vv=clean.map(function(p){return p[2]}).filter(function(v){return v>0.3&&v<15});
+  var minSpd=vv.length?Math.min.apply(null,vv):0;
+  var maxSpd=vv.length?Math.max.apply(null,vv):1;
+  if(maxSpd-minSpd<0.5)maxSpd=minSpd+0.5; // 速度变化极小时仍保留可辨色差
+  // 连续冷暖色阶：蓝(慢)→青→绿→黄→红(快)，比原来的 3 档离散色更容易分辨快慢
+  var SPD_STOPS=[[43,108,255],[0,200,205],[48,209,88],[255,214,10],[255,69,58]];
+  function speedColor(v){
+    var t=clamp((v-minSpd)/(maxSpd-minSpd),0,1);
+    var f=t*(SPD_STOPS.length-1),k=Math.floor(f),fr=f-k;
+    if(k>=SPD_STOPS.length-1){k=SPD_STOPS.length-2;fr=1}
+    var a=SPD_STOPS[k],b=SPD_STOPS[k+1];
+    return 'rgb('+Math.round(a[0]+(b[0]-a[0])*fr)+','+Math.round(a[1]+(b[1]-a[1])*fr)+','+Math.round(a[2]+(b[2]-a[2])*fr)+')';
+  }
+  var segs='',prev=xy(gc[0]),prevP=gc[0];
+  for(var i=1;i<gc.length;i++){
+    var cur=xy(gc[i]);
+    var dLa=(clean[i][0]-prevP[0])*111320,dLn=(clean[i][1]-prevP[1])*111320*cos;
+    var stepM=Math.sqrt(dLa*dLa+dLn*dLn);
+    if(stepM<8000){
+      var col=speedColor(clean[i][2]);
+      segs+='<line x1="'+prev[0].toFixed(1)+'" y1="'+prev[1].toFixed(1)+'" x2="'+cur[0].toFixed(1)+'" y2="'+cur[1].toFixed(1)+'" stroke="rgba(0,0,0,.55)" stroke-width="6.5" stroke-linecap="round"/>';
+      segs+='<line x1="'+prev[0].toFixed(1)+'" y1="'+prev[1].toFixed(1)+'" x2="'+cur[0].toFixed(1)+'" y2="'+cur[1].toFixed(1)+'" stroke="'+col+'" stroke-width="4" stroke-linecap="round" opacity="0.98"/>';
+    }
+    prev=cur;prevP=gc[i];
+  }
+  var st=xy(gc[0]),en=xy(gc[gc.length-1]);
+  // —— 每公里分段标记点：按累计距离找到整公里位置，供地图标点与分段配速共用 ——
+  var marks=splitMarks(clean); // [{km,lat,lng,speed,tMs,idx}]
+  var markSvg='';
+  marks.forEach(function(m){
+    var mp=xy(wgs2gcj(m.lat,m.lng));
+    markSvg+='<g><circle cx="'+mp[0].toFixed(1)+'" cy="'+mp[1].toFixed(1)+'" r="9" fill="rgba(20,20,28,.82)" stroke="#fff" stroke-width="1.8"/>'+
+      '<text x="'+mp[0].toFixed(1)+'" y="'+(mp[1]+3.2).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">'+m.km+'</text></g>';
+  });
+  // —— 真实卫星瓦片底图：高德 style=6。瓦片与轨迹都作为 <image>/<line> 放进同一 SVG，
+  //    共用 viewBox 像素坐标系，缩放时严格对齐 ——
+  var tiles='',n=Math.pow(2,z);
+  // 无网络时不请求瓦片，仅显示深底 + 轨迹，避免空白等待
+  if(typeof navigator==='undefined'||navigator.onLine!==false){
+    var ix0=Math.floor(cxT-W/2/256),ix1=Math.floor(cxT+W/2/256);
+    var iy0=Math.floor(cyT-H/2/256),iy1=Math.floor(cyT+H/2/256);
+    for(var ix=ix0;ix<=ix1;ix++){
+      for(var iy=iy0;iy<=iy1;iy++){
+        if(iy<0||iy>=n)continue;
+        var wx=((ix%n)+n)%n;
+        var sub=1+(((ix%4)+4)%4);
+        var left=(ix-cxT)*256+W/2,top=(iy-cyT)*256+H/2;
+        var url='https://webst0'+sub+'.is.autonavi.com/appmaptile?style=6&x='+wx+'&y='+iy+'&z='+z;
+        tiles+='<image href="'+url+'" xlink:href="'+url+'" x="'+left.toFixed(1)+'" y="'+top.toFixed(1)+'" width="256" height="256" preserveAspectRatio="none"/>';
+      }
+    }
+  }
+  // clipPath 把瓦片裁进视野
+  return '<div class="mapbox satmap">'+
+    '<svg class="sat-track" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice">'+
+      '<defs><clipPath id="mapclip"><rect width="'+W+'" height="'+H+'"/></clipPath>'+
+      '<linearGradient id="satfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".05"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs>'+
+      '<rect width="'+W+'" height="'+H+'" fill="#1a2418"/>'+
+      '<g clip-path="url(#mapclip)">'+tiles+'</g>'+
+      '<rect width="'+W+'" height="'+H+'" fill="url(#satfade)" pointer-events="none"/>'+
+      segs+markSvg+
+      '<circle cx="'+st[0].toFixed(1)+'" cy="'+st[1].toFixed(1)+'" r="6.5" fill="'+C.green+'" stroke="#fff" stroke-width="2.2"/>'+
+      '<circle cx="'+en[0].toFixed(1)+'" cy="'+en[1].toFixed(1)+'" r="6.5" fill="'+C.red+'" stroke="#fff" stroke-width="2.2"/>'+
+    '</svg>'+
+    '<div class="speed-legend"><span class="sl-t">速度</span><span class="sl-lo">'+(minSpd*3.6).toFixed(1)+'</span>'+
+      '<span class="sl-bar"></span><span class="sl-hi">'+(maxSpd*3.6).toFixed(1)+' km/h</span>'+
+      '<span class="sl-sep">·</span><span><i class="sl-start"></i>起</span><span><i class="sl-end"></i>终</span></div>'+
+    '<div class="sat-credit">卫星影像 © 高德地图</div></div>';
+}
+
+/* ---------- format helpers ---------- */
+function hhmm(ms){if(!ms)return '--';var d=new Date(ms);return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
+function mdLabel(sec){var d=new Date(sec*1000);return (d.getMonth()+1)+'月'+d.getDate()+'日'}
+function mdShort(date){return date?date.slice(5).replace('-','/'):''}
+function durText(sec){sec=sec||0;var h=Math.floor(sec/3600),m=Math.round(sec%3600/60);return h>0?h+'小时'+(m?m+'分':''):m+'分钟'}
+function distText(m){return m>=1000?(m/1000).toFixed(2)+' km':(m||0)+' m'}
+function todayStr(){var d=new Date();return (d.getMonth()+1)+'月'+d.getDate()+'日 · 周'+'日一二三四五六'[d.getDay()]}
+
+/* ---------- header & tabs ---------- */
+var EYE=['TODAY · 今日','WORKOUT · 锻炼','INSIGHT · 智能分析','DEVICE · 设备'];
+var TIT=['你好，今天','锻炼记录','读懂你的身体','设备与数据'];
+var TABIC=['◎','◆','✦','⚙'];
+var TABCO=[C.red,C.green,C.blue,C.mint];
+function renderHeader(){
+  if(detail){document.getElementById('header').innerHTML='';return}
+  document.getElementById('header').innerHTML='<div><div class="eyebrow">'+EYE[cur]+'</div><div class="title">'+TIT[cur]+'</div></div>'+
+    '<div class="hdate">'+todayStr()+'<span class="tm"><span id="upd">'+ago()+'</span> <b class="syncbtn" onclick="__syncNow()" title="立即同步手表数据">↻</b></span></div>';
+}
+function renderTabs(){
+  var wrap=document.querySelector('.tabs-wrap');
+  if(detail){wrap.style.display='none';return}
+  wrap.style.display='';
+  var names=['概览','锻炼','AI','设备'],h='';
+  names.forEach(function(n,i){
+    h+='<div class="tab'+(cur===i?' on':'')+'" onclick="go('+i+')"><span class="ic" style="'+(cur===i?'color:'+TABCO[i]:'')+'">'+TABIC[i]+'</span><span class="nm">'+n+'</span></div>';
+  });
+  document.getElementById('tabs').innerHTML=h;
+}
+function go(i){detail=null;exOpen=-1;cur=i;render();window.scrollTo(0,0)}
+function openDetail(t){detail=t;exOpen=-1;render();window.scrollTo(0,0)}
+function closeDetail(){detail=null;render();window.scrollTo(0,0)}
+
+/* ---------- shared blocks ---------- */
+function emptyPage(){
+  return '<div class="empty"><div class="ico">⌚</div><h2>未读取到数据</h2>'+
+   '<p>这里只显示从你手机真实读取到的数据，读不到就绝不造假。<br>请先在「小米运动健康」里同步一次手表数据，<br>并确认已给本 App root 权限（KernelSU 需开全局命名空间）。</p>'+
+   '<button class="btn" style="color:'+C.blue+';border-color:'+C.blue+'55;background:'+C.blue+'18" onclick="__openMi()">打开小米运动健康</button>'+
+   '<button class="btn" style="color:'+C.green+';border-color:'+C.green+'55;background:'+C.green+'18" onclick="__openSettings()">Root / 命名空间设置</button>'+
+   '<button class="btn" style="color:'+C.purple+';border-color:'+C.purple+'55;background:'+C.purple+'18" onclick="openDetail(\'device\')">查看诊断</button></div>';
+}
+function stat(k,v,u,color,note,detailKey){
+  var valid=(typeof v==='number')?v>0:(v!=null&&v!==''&&parseFloat(String(v).replace(/,/g,''))>0);
+  var disp=valid?(typeof v==='number'?v.toLocaleString('en-US'):v):'--';
+  return '<div class="stat tap" onclick="openDetail(\''+detailKey+'\')"><div class="k"><i style="background:'+color+'"></i>'+k+'<span class="ar">›</span></div>'+
+   '<div class="v num" style="color:'+color+'">'+disp+(valid&&u?'<small>'+u+'</small>':'')+'</div>'+
+   '<div class="note">'+esc(note)+'</div></div>';
+}
+function mcell(k,v,u,d){return '<div class="mcell"><div class="k">'+k+'</div><div class="v num">'+v+(u?'<small> '+u+'</small>':'')+'</div>'+(d?'<div class="d">'+esc(d)+'</div>':'')+'</div>'}
+function brk(n,v,max,c){var p=clamp(v/max*100,0,100);return '<div class="brk"><div class="top"><span class="n">'+n+'</span><span class="s">'+v+'/'+max+'</span></div><div class="track"><div class="fill" style="width:'+p+'%;background:linear-gradient(90deg,'+c+'aa,'+c+')"></div></div></div>'}
+/** 分钟 → "X小时Y分" */
+function hm(m){m=Math.round(m||0);var h=Math.floor(m/60),r=m%60;return h>0?(h+'小时'+(r?r+'分':'')):(r+'分')}
+function sl(c,n,v){return '<div class="sl"><i style="background:'+c+'"></i>'+n+' <b>'+hm(v)+'</b></div>'}
+function sdrow(c,n,v,tot){var pc=tot>0?Math.round(v/tot*100):0;return '<div class="sdrow"><i style="background:'+c+'"></i><span class="nm">'+n+'</span><span class="bar"><em style="width:'+pc+'%;background:'+c+'"></em></span><span class="tm">'+hm(v)+'</span><span class="pc">'+pc+'%</span></div>'}
+/** 睡眠债徽章：把累计缺口浓缩成一句友好的状态 */
+function debtBadge(){
+  var c=coach();if(!c)return '';
+  var m=c.sleepDebtMin||0, h=Math.abs(m)/60;
+  if(Math.abs(m)<30)return '<div class="debt-badge ok"><span class="di">✓</span><span>睡眠债 <b>基本持平</b>，近几晚作息稳定</span></div>';
+  if(m>0)return '<div class="debt-badge warn"><span class="di">−</span><span>睡眠债 <b>'+h.toFixed(1)+' 小时</b> · 建议今晚适度提前入睡</span></div>';
+  return '<div class="debt-badge good"><span class="di">+</span><span>睡眠盈余 <b>'+h.toFixed(1)+' 小时</b> · 恢复储备充足</span></div>';
+}
+function subbar(title){return '<div class="subbar"><div class="back" onclick="closeDetail()">‹</div><div class="subtt">'+title+'</div></div>'}
+
+/* ==================== 首页：昨晚睡眠 → 今日准备度 优先 ==================== */
+function overview(){
+  if(!hasDays())return emptyPage();
+  var d=latestDay(),c=coach();
+  var rd=c?c.readiness:0;
+  var rd10=c&&c.readiness10?c.readiness10:clamp(Math.round(rd/10),1,10);
+  var lc=rd10>=9?C.green:rd10>=7?C.blue:rd10>=5?C.yellow:C.red;
+  var label=rd10>=9?'状态出色':rd10>=7?'状态良好':rd10>=5?'状态一般':'需要恢复';
+  var sc=lastScore(),sd=lastSleepDay();
+  var h='';
+  // ---- 准备度英雄卡：1-10 分，不展示评分构成细节 ----
+  h+='<div class="hero tap" onclick="openDetail(\'readiness\')">'+
+   '<div class="cap">今日身体准备度 · READINESS</div>'+
+   '<div class="hero-main">'+readinessArc(rd,'')+
+   '<div><div class="hero-num num">'+rd10+'<small> / 10</small></div>'+
+   '<span class="hero-tag" style="color:'+lc+';background:'+lc+'22">'+label+'</span></div></div>'+
+   '<div class="hero-sub">';
+  if(sd&&sc){
+    var sh=(sd.sleep.totalMinutes/60).toFixed(1);
+    h+='综合昨晚睡眠与身体恢复，今天的准备度为 <b>'+rd10+' 分</b>。'+
+       '<span style="color:'+C.blue+'"> 查看解读 ›</span>';
+  }else h+='暂无昨晚睡眠数据，同步手表后我会为你评估今天的身体状态。';
+  h+='</div></div>';
+
+  // ---- 活动：Apple 健身风格三环（活动/锻炼/站立）----
+  h+='<div class="card"><div class="ctitle">今日活动</div>'+activityRings(d)+'</div>';
+
+  // ---- 睡眠摘要（保留标题样式，重做内容：无大圆环，柔和配色 + 睡眠债徽章）----
+  var sc0=lastScore(),sd0=lastSleepDay();
+  if(sd0&&sd0.sleep&&sd0.sleep.totalMinutes>0){
+    var ss=sd0.sleep,deep0=ss.deepMinutes||0,light0=ss.lightMinutes||0,rem0=ss.remMinutes||0,awake0=ss.awakeMinutes||0;
+    var tot0=deep0+light0+rem0+awake0||1, asleep=deep0+light0+rem0;
+    var hasScore=sc0&&sc0.score>0;
+    var scol=hasScore?(sc0.score>=90?C.green:sc0.score>=80?C.blue:sc0.score>=70?C.yellow:C.red):SLEEP.deep;
+    var gradeTxt=hasScore?esc(sc0.level):'睡眠记录';
+    var scoreNum=hasScore?sc0.score:Math.round(asleep/tot0*100);
+    var scoreLbl=hasScore?'睡眠分':'效率%';
+    h+='<div class="card tap" onclick="openDetail(\'sleep\')"><div class="ctitle"><i style="background:'+SLEEP.deep+'"></i>昨晚睡眠 · '+mdShort(sd0.date)+'<span class="more">完整分析 ›</span></div>'+
+      '<div class="sleep-hero"><div class="sh-left"><div class="sh-time num">'+hm(asleep)+'</div>'+
+      '<div class="sh-sub"><span class="sh-grade" style="color:'+scol+';background:'+scol+'1e">'+gradeTxt+'</span>'+
+      '<span class="sh-hrv">恢复 HRV '+(ss.avgHrv||'--')+' ms</span></div></div>'+
+      '<div class="sh-score"><div class="n num" style="color:'+scol+'">'+scoreNum+'</div><div class="l">'+scoreLbl+'</div></div></div>'+
+      '<div class="stagebar" style="margin-top:14px">'+
+       '<span style="width:'+(awake0/tot0*100)+'%;background:'+SLEEP.awake+'"></span>'+
+       '<span style="width:'+(rem0/tot0*100)+'%;background:'+SLEEP.rem+'"></span>'+
+       '<span style="width:'+(light0/tot0*100)+'%;background:'+SLEEP.light+'"></span>'+
+       '<span style="width:'+(deep0/tot0*100)+'%;background:'+SLEEP.deep+'"></span></div>'+
+      '<div class="stages-legend" style="margin-top:11px">'+sl(SLEEP.deep,'深睡',deep0)+sl(SLEEP.light,'浅睡',light0)+sl(SLEEP.rem,'REM',rem0)+sl(SLEEP.awake,'清醒',awake0)+'</div>'+
+      debtBadge()+
+      '</div>';
+  }
+
+  // ---- 核心指标（可点击进二级页）----
+  h+='<div class="stat-grid">'+
+   stat('心率',d.avgHeartRate,'bpm',C.red,d.minHeartRate&&d.maxHeartRate?(d.minHeartRate+'–'+d.maxHeartRate+' 区间'):'今日均值','hr')+
+   stat('血氧',d.spo2,'%',C.blue,'今日均值','spo2')+
+   stat('压力',d.stress,'',C.orange,'越低越好','stress')+
+   stat('活动',d.exerciseMinutes,'分钟',C.green,'今日锻炼','activeTime')+'</div>';
+
+  // ---- 近 7 天步数（可点击）----
+  var a=days(),steps=a.map(function(x){return x.steps||0}),labels=a.map(function(x){return mdShort(x.date)});
+  if(steps.some(function(v){return v>0}))
+    h+='<div class="card tap" style="margin-top:14px" onclick="openDetail(\'steps\')"><div class="ctitle"><i style="background:'+C.red+'"></i>近 '+a.length+' 天步数<span class="more">详情 ›</span></div>'+barChart(steps,labels,C.red)+'</div>';
+
+  // ---- 最近锻炼（点击进入该场详情）----
+  var ex=exercises();
+  if(ex.length){
+    var e=ex[0];
+    h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>最近锻炼<span class="more" onclick="go(2)">全部 ›</span></div>'+
+     '<div class="exhead tap" onclick="openEx(0)"><div class="badge" style="color:'+EXC[e.colorIdx%6]+';background:'+EXC[e.colorIdx%6]+'1f">'+esc(e.badge)+'</div>'+
+     '<div><div class="exname">'+esc(e.name)+'</div><div class="exdate">'+mdLabel(e.startSec)+' '+hhmm(e.startSec*1000)+'</div></div>'+
+     '<div class="exdist"><div class="a num">'+distText(e.distanceM)+'</div><div class="b">'+durText(e.durationSec)+'</div></div></div></div>';
+  }
+  return h;
+}
+/** Apple 健身风格三环：活动(步)/锻炼(分钟)/站立(小时)，同心圆环 */
+function activityRings(d){
+  // Apple Fitness 经典三色：活动=珊瑚红/玫红，锻炼=青柠绿，站立=天蓝；高饱和渐变 + 端点高光
+  var rings=[
+    {v:d.steps||0,goal:10000,unit:'步',name:'活动',c1:'#FF6B8A',c2:'#FA1250',glow:'#FA1250'},
+    {v:d.exerciseMinutes||0,goal:45,unit:'分钟',name:'锻炼',c1:'#C6F24E',c2:'#28D84A',glow:'#5BE02A'},
+    {v:d.standHours||0,goal:12,unit:'小时',name:'站立',c1:'#5FE0FF',c2:'#0A9BFF',glow:'#12B6FF'}
+  ];
+  var S=212,cx=106,cy=106,baseR=[88,64,40],sw=15;
+  var TRK=NIGHT?'rgba(255,255,255,.075)':'rgba(20,20,40,.07)';
+  var s='<svg class="ring3" viewBox="0 0 '+S+' '+S+'"><defs>';
+  rings.forEach(function(g,i){
+    s+='<linearGradient id="ag'+i+'" x1="0%" y1="0%" x2="100%" y2="100%">'+
+       '<stop offset="0%" stop-color="'+g.c1+'"/><stop offset="100%" stop-color="'+g.c2+'"/></linearGradient>';
+    s+='<filter id="gl'+i+'" x="-40%" y="-40%" width="180%" height="180%">'+
+       '<feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+  });
+  s+='</defs><g transform="rotate(-90 '+cx+' '+cy+')">';
+  // 轨道环：深色底 + 内侧极细高光，形成立体凹槽
+  baseR.forEach(function(r){
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+TRK+'" stroke-width="'+sw+'"/>';
+  });
+  // 进度环 + 端点高光圆点（发光）
+  rings.forEach(function(g,i){
+    var r=baseR[i],cir=2*Math.PI*r,p=clamp(g.v/g.goal,0,1);
+    if(p>0.001){
+      var off=cir*(1-p);
+      // 发光底层
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="url(#ag'+i+')" stroke-width="'+sw+'" stroke-linecap="round" '+
+         'stroke-dasharray="'+cir.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" opacity="0.45" filter="url(#gl'+i+')"/>';
+      // 主体环
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="url(#ag'+i+')" stroke-width="'+sw+'" stroke-linecap="round" '+
+         'stroke-dasharray="'+cir.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" style="transition:stroke-dashoffset .9s"/>';
+      // 端点：外圈深影 + 白色高光点（Apple 健身标志性的收尾圆点）
+      var ang=2*Math.PI*p-Math.PI/2,ex=cx+r*Math.cos(ang),ey=cy+r*Math.sin(ang);
+      s+='<circle cx="'+ex.toFixed(2)+'" cy="'+ey.toFixed(2)+'" r="'+(sw/2+1.5)+'" fill="'+g.c2+'" stroke="'+(NIGHT?'rgba(0,0,0,.35)':'rgba(255,255,255,.6)')+'" stroke-width="1.2" filter="url(#gl'+i+')"/>';
+      s+='<circle cx="'+ex.toFixed(2)+'" cy="'+ey.toFixed(2)+'" r="'+(sw/2-2)+'" fill="'+g.c1+'"/>';
+    }
+  });
+  s+='</g></svg>';
+  // 环内不放大任何数据，保持纯粹的三环视觉；数据全部在下方胶囊呈现
+  var ringWrap='<div class="ring3-stage">'+s+'</div>';
+  // 下方横排图例：色点 + 名称 + 数值 + 进度（左侧色带呼应环色）
+  var chips='<div class="ring3-chips">';
+  rings.forEach(function(g){
+    var pct=Math.round(clamp(g.v/g.goal,0,1)*100);
+    chips+='<div class="r3chip" style="--rc:'+g.c2+'"><span class="r3cdot"></span>'+
+      '<span class="r3cname">'+g.name+'</span>'+
+      '<span class="r3cval num">'+num(g.v)+'<small>'+g.unit+'</small></span>'+
+      '<span class="r3cpct">'+pct+'%</span></div>';
+  });
+  chips+='</div>';
+  return '<div class="ring3new">'+ringWrap+chips+'</div>';
+}
+
+/* ==================== 睡眠页：深度分析 ==================== */
+/** 睡眠周期 + 结构质量深度解读：把分期数值翻译成"这觉睡得怎么样" */
+function sleepCycleCard(s,deep,light,rem,awake,asleep,tot){
+  var h='';
+  // —— 睡眠周期：以 90 分钟为一个完整周期（含深→浅→REM），估算昨晚经历的周期数 ——
+  var cycleMin=90, cycles=asleep/cycleMin, fullCycles=Math.floor(cycles);
+  var remPct=tot>0?rem/tot*100:0, deepPct=tot>0?deep/tot*100:0, eff=tot>0?asleep/tot*100:0;
+  // 周期可视化：一段段弧，满周期点亮
+  var dots='';var maxDot=6;
+  for(var i=0;i<maxDot;i++){
+    var fill=clamp(cycles-i,0,1);
+    dots+='<span class="cyc-dot"><i style="height:'+(fill*100).toFixed(0)+'%"></i></span>';
+  }
+  var cycleTxt=fullCycles>=5?'睡眠周期充足':fullCycles>=4?'周期数理想':fullCycles>=3?'周期偏少，深睡可能不足':'周期明显不足';
+  h+='<div class="card"><div class="ctitle"><i style="background:'+SLEEP.deep+'"></i>睡眠周期</div>'+
+    '<div class="cyc-row"><div class="cyc-big num">'+cycles.toFixed(1)+'<small> 个周期</small></div>'+
+    '<div class="cyc-dots">'+dots+'</div></div>'+
+    '<div class="cyc-note">每个睡眠周期约 90 分钟，一夜通常 4–6 个。'+cycleTxt+' · 约 '+fullCycles+' 个完整周期。</div></div>';
+
+  // —— 结构质量：综合深睡/REM/效率给一个可解释的定性结论 ——
+  var goodDeep=deepPct>=18, goodRem=remPct>=20, goodEff=eff>=85, goodDur=asleep>=420;
+  var scoreCnt=(goodDeep?1:0)+(goodRem?1:0)+(goodEff?1:0)+(goodDur?1:0);
+  var grade,gradeC,gradeDesc;
+  if(scoreCnt>=4){grade='优质睡眠';gradeC=C.green;gradeDesc='时长、深度、REM 与效率都达标，身体得到了充分修复。';}
+  else if(scoreCnt>=3){grade='良好睡眠';gradeC=C.blue;gradeDesc='整体不错，还有一到两项可以继续优化。';}
+  else if(scoreCnt>=2){grade='一般睡眠';gradeC=C.yellow;gradeDesc='基本满足需要，但睡眠质量有提升空间。';}
+  else{grade='欠佳睡眠';gradeC=C.orange;gradeDesc='多个维度偏低，今晚建议早点入睡、改善睡眠环境。';}
+  h+='<div class="card"><div class="ctitle"><i style="background:'+gradeC+'"></i>睡眠质量</div>'+
+    '<div class="qgrade" style="color:'+gradeC+';background:'+gradeC+'16;border-color:'+gradeC+'33">'+grade+'</div>'+
+    '<div class="narrative" style="margin-top:11px">'+esc(gradeDesc)+'</div>'+
+    '<div class="qflags">'+
+      qflag(goodDur,'时长',goodDur?'≥7 小时':'不足 7 小时')+
+      qflag(goodDeep,'深睡',Math.round(deepPct)+'% · '+(goodDeep?'达标':'偏低'))+
+      qflag(goodRem,'REM',Math.round(remPct)+'% · '+(goodRem?'达标':'偏低'))+
+      qflag(goodEff,'效率',Math.round(eff)+'% · '+(goodEff?'良好':'偏低'))+
+    '</div></div>';
+
+  // —— 结构解读：深睡管体力修复，REM 管记忆/情绪，给出针对性说明 ——
+  var insights=[];
+  if(deepPct<15)insights.push('深睡占比 '+Math.round(deepPct)+'%，低于理想的 20% 左右。深睡是体力修复与免疫强化的关键阶段，规律作息、睡前避免酒精和剧烈运动有助提升。');
+  else if(deepPct>=20)insights.push('深睡占比 '+Math.round(deepPct)+'%，达到理想水平，说明身体的体力修复比较充分。');
+  if(remPct<18)insights.push('REM 占比 '+Math.round(remPct)+'%，略低于理想的 22%。REM 与记忆巩固、情绪调节相关，保证总睡眠时长通常能自然提升 REM。');
+  else if(remPct>=22)insights.push('REM 占比 '+Math.round(remPct)+'%，比例理想，对大脑恢复与情绪稳定有利。');
+  if(awake>30)insights.push('夜间清醒 '+awake+' 分钟，偏多。若频繁夜醒，可留意睡前饮水、室温与压力水平。');
+  if(!insights.length)insights.push('各项睡眠结构指标都在健康范围内，继续保持当前的作息节奏。');
+  h+='<div class="card"><div class="ctitle"><i style="background:'+SLEEP.rem+'"></i>结构解读</div>';
+  insights.forEach(function(t){h+='<div class="advice"><span class="dot">•</span><span>'+esc(t)+'</span></div>'});
+  h+='</div>';
+  return h;
+}
+function qflag(ok,name,desc){
+  return '<div class="qflag '+(ok?'ok':'no')+'"><i>'+(ok?'✓':'!')+'</i><span class="qn">'+name+'</span><span class="qd">'+esc(desc)+'</span></div>';
+}
+function sleepPage(){
+  if(!hasDays())return emptyPage();
+  var sc=lastScore(),sd=lastSleepDay();
+  // 睡眠分析以真实的睡眠分期为核心：只要有睡眠数据就能分析，评分仅作可选加分项
+  if(!sd||!sd.sleep||!(sd.sleep.totalMinutes>0))return emptyPage();
+  var s=sd.sleep;
+  var deep=s.deepMinutes||0,light=s.lightMinutes||0,rem=s.remMinutes||0,awake=s.awakeMinutes||0,tot=deep+light+rem+awake||1;
+  var asleep=deep+light+rem;
+  var h='';
+  if(sc&&sc.score>0){
+    var col=sc.score>=90?C.green:sc.score>=80?C.blue:sc.score>=70?C.yellow:C.red;
+    h+='<div class="card"><div class="score-wrap">'+bigRing(sc.score,C.purple,'#7a5cff','睡眠评分')+
+     '<div class="score-grade" style="color:'+col+';background:'+col+'1f">'+esc(sc.level||'—')+'</div></div></div>';
+  }else{
+    // 评分未生成时，用睡眠效率作为视觉锚点，保证详情页始终可用
+    var eff0=tot>0?Math.round(asleep/tot*100):0;
+    h+='<div class="card"><div class="score-wrap">'+bigRing(eff0,C.purple,'#7a5cff','睡眠效率')+
+     '<div class="score-grade" style="color:'+C.purple+';background:'+C.purple+'1f">睡眠 '+(asleep/60).toFixed(1)+' 小时</div></div></div>';
+  }
+  // 分期
+  h+='<div class="card"><div class="ctitle"><i style="background:'+SLEEP.deep+'"></i>睡眠分期 · '+mdShort(sd.date)+'</div><div class="stagebar">'+
+   '<span style="width:'+(awake/tot*100)+'%;background:'+SLEEP.awake+'"></span><span style="width:'+(rem/tot*100)+'%;background:'+SLEEP.rem+'"></span>'+
+   '<span style="width:'+(light/tot*100)+'%;background:'+SLEEP.light+'"></span><span style="width:'+(deep/tot*100)+'%;background:'+SLEEP.deep+'"></span></div>'+
+   '<div class="stages-legend">'+sl(SLEEP.deep,'深睡',deep)+sl(SLEEP.light,'浅睡',light)+sl(SLEEP.rem,'REM',rem)+sl(SLEEP.awake,'清醒',awake)+'</div>'+
+   '<div class="stage-detail">'+
+     sdrow(SLEEP.deep,'深睡',deep,tot)+sdrow(SLEEP.light,'浅睡',light,tot)+
+     sdrow(SLEEP.rem,'REM',rem,tot)+sdrow(SLEEP.awake,'清醒',awake,tot)+
+   '</div></div>';
+
+  // 关键指标
+  h+='<div class="mgrid">'+
+   mcell('睡眠时长',((deep+light+rem)/60).toFixed(1),'小时','目标 7–9 小时')+
+   mcell('睡眠效率',Math.round((deep+light+rem)/tot*100)+'%','','清醒 '+awake+' 分钟')+
+   mcell('深睡占比',Math.round(deep/tot*100)+'%','','理想 ≥20%')+
+   mcell('REM 占比',Math.round(rem/tot*100)+'%','','理想 ≥22%')+
+   mcell('夜间心率',s.avgHeartRate||'--','bpm','越低越好')+
+   mcell('夜间 HRV',s.avgHrv||'--','ms','越高越好')+
+   mcell('入睡',s.bedTimeMs?hhmm(s.bedTimeMs):'--','','')+
+   mcell('起床',s.wakeTimeMs?hhmm(s.wakeTimeMs):'--','','')+'</div>';
+
+  // 睡眠周期 + 结构质量深度解读（本轮新增：从"看数值"升级为"看懂睡眠"）
+  h+=sleepCycleCard(s,deep,light,rem,awake,asleep,tot);
+
+  // 目标对比（数值基于本晚真实数据；睡眠效率=睡眠/(睡眠+清醒)）
+  var effPct=Math.round((deep+light+rem)/tot*100);
+  h+='<div class="card" style="margin-top:14px"><div class="ctitle"><i style="background:'+C.mint+'"></i>与目标对比</div>'+
+   brk('睡眠时长(小时)',+((deep+light+rem)/60).toFixed(1),9,C.blue)+
+   brk('深睡比例(%)',Math.round(deep/tot*100),25,SLEEP.deep)+
+   brk('REM 比例(%)',Math.round(rem/tot*100),25,SLEEP.rem)+
+   brk('睡眠效率(%)',effPct,90,C.orange)+'</div>';
+
+  // 睡眠债（优化展示：徽章 + 详细文案）
+  var c=coach();
+  h+='<div class="card"><div class="ctitle"><i style="background:'+C.orange+'"></i>睡眠债</div>'+debtBadge()+
+     (c&&c.debtText?'<div class="narrative" style="margin-top:11px">'+esc(c.debtText)+'</div>':'')+'</div>';
+
+  // HRV 恢复（相对个人基线，解读前一天运动后的恢复程度）
+  if(c&&c.hrvText)h+='<div class="card"><div class="ctitle"><i style="background:'+SLEEP.rem+'"></i>身体恢复 · HRV</div><div class="narrative">'+esc(c.hrvText)+'</div></div>';
+
+  // 本地睡眠深度解读（离线即时、始终可用）
+  if(c&&c.sleepAnalysis)h+='<div class="card"><div class="ctitle"><i style="background:'+SLEEP.deep+'"></i>睡眠深度解读</div><div class="narrative">'+esc(c.sleepAnalysis)+'</div>'+
+    '<div class="segdesc" style="font-size:11px;margin-top:10px">以上解读由本机根据睡眠分期、深睡/REM 占比、HRV 与夜间心率实时计算，离线可用。</div></div>';
+
+  // 趋势
+  var scvals=[];(DATA.scores||[]).forEach(function(x){if(x&&x.score>0)scvals.push(x.score)});
+  var hrvals=[],durvals=[];days().forEach(function(x){if(x.sleep&&x.sleep.totalMinutes>0){if(x.sleep.avgHrv>0)hrvals.push(x.sleep.avgHrv);durvals.push(+(x.sleep.totalMinutes/60).toFixed(1))}});
+  if(scvals.length>1)h+='<div class="card"><div class="ctitle" onclick="openDetail(\'trendScore\')"><i style="background:'+C.purple+'"></i>近 '+scvals.length+' 晚评分趋势<span class="more">›</span></div>'+lineChart(scvals,C.purple)+'</div>';
+  if(hrvals.length>1)h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>HRV 趋势（ms）</div>'+lineChart(hrvals,C.green)+'</div>';
+
+  if(sc&&sc.advice&&sc.advice.length){
+    h+='<div class="card"><div class="ctitle"><i style="background:'+C.orange+'"></i>改善建议</div>';
+    sc.advice.forEach(function(t){h+='<div class="advice"><span class="dot">•</span><span>'+esc(t)+'</span></div>'});
+    h+='</div>';
+  }
+  return h;
+}
+
+/* ==================== 专业跑步指标卡（基于真实跑步，行业模型估算） ==================== */
+function perfCard(){
+  var pf=(DATA&&DATA.performance)?DATA.performance:null;
+  if(!pf||!pf.hasData)return '';
+  var h='<div class="card"><div class="ctitle"><i style="background:'+C.orange+'"></i>专业跑步指标 <span style="color:var(--sub2);font-weight:500;text-transform:none;letter-spacing:0;font-size:10px">· 模型估算</span></div>';
+  // VO2max + 跑力指数 双环
+  h+='<div class="perf-duo">';
+  if(pf.vo2max>0){
+    var vc=pf.vo2max>=52?C.green:pf.vo2max>=45?C.blue:pf.vo2max>=38?C.orange:C.red;
+    h+='<div class="perf-cell"><div class="perf-ring"><svg viewBox="0 0 84 84">'+
+      '<circle cx="42" cy="42" r="34" fill="none" stroke="'+(NIGHT?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)')+'" stroke-width="7"/>'+
+      '<circle cx="42" cy="42" r="34" fill="none" stroke="'+vc+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+(2*Math.PI*34).toFixed(1)+'" stroke-dashoffset="'+(2*Math.PI*34*(1-clamp(pf.vo2max/70,0,1))).toFixed(1)+'" transform="rotate(-90 42 42)"/>'+
+      '<text x="42" y="46" text-anchor="middle" font-size="21" font-weight="800" fill="'+(NIGHT?'#fff':'#1c1c1e')+'">'+pf.vo2max+'</text></svg></div>'+
+      '<div class="perf-k">最大摄氧量</div><div class="perf-l">ml/kg/min</div>'+
+      '<div class="perf-badge" style="color:'+vc+';background:'+vc+'1c">'+esc(pf.vo2maxLevel)+'</div>'+
+      (pf.vo2PeerText?'<div class="perf-peer">'+esc(pf.vo2PeerText)+'</div>':'')+'</div>';
+  }
+  if(pf.runningIndex>0){
+    var ic=pf.runningIndex>=68?C.green:pf.runningIndex>=55?C.blue:pf.runningIndex>=42?C.orange:C.red;
+    h+='<div class="perf-cell"><div class="perf-ring"><svg viewBox="0 0 84 84">'+
+      '<circle cx="42" cy="42" r="34" fill="none" stroke="'+(NIGHT?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)')+'" stroke-width="7"/>'+
+      '<circle cx="42" cy="42" r="34" fill="none" stroke="'+ic+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+(2*Math.PI*34).toFixed(1)+'" stroke-dashoffset="'+(2*Math.PI*34*(1-clamp(pf.runningIndex/100,0,1))).toFixed(1)+'" transform="rotate(-90 42 42)"/>'+
+      '<text x="42" y="46" text-anchor="middle" font-size="21" font-weight="800" fill="'+(NIGHT?'#fff':'#1c1c1e')+'">'+pf.runningIndex+'</text></svg></div>'+
+      '<div class="perf-k">跑力指数</div><div class="perf-l">0–100</div>'+
+      '<div class="perf-badge" style="color:'+ic+';background:'+ic+'1c">'+esc(pf.riLevel)+'</div></div>';
+  }
+  h+='</div>';
+  // 成绩预测
+  if(pf.hasPrediction){
+    h+='<div class="ctitle" style="margin:6px 2px 10px"><i style="background:'+C.blue+'"></i>成绩预测 <span style="color:var(--sub2);font-weight:500;text-transform:none;letter-spacing:0;font-size:10px">· 参考 '+esc(pf.refRace)+'</span></div>'+
+      '<div class="pred-grid">'+
+      predCell('5 公里',pf.pred5k)+predCell('10 公里',pf.pred10k)+
+      predCell('半程马拉松',pf.predHalf)+predCell('全程马拉松',pf.predFull)+
+      '</div>';
+  }
+  h+='<div class="hint" style="margin-top:12px">'+esc(pf.basis)+'，按 Daniels 摄氧量模型、Polar 跑力思路与 Riegel 成绩公式估算，仅供训练参考；实际能力以正式比赛为准。</div>';
+  h+='</div>';
+  return h;
+}
+function predCell(k,v){return '<div class="pred-cell"><div class="k">'+k+'</div><div class="v num">'+esc(v)+'</div></div>'}
+
+/* ==================== 锻炼页 ==================== */
+/** 个人最佳成绩 PB：基于全部历史锻炼的真实极值，主流运动 App 标配 */
+function pbCard(){
+  var ex=exercises();
+  if(!ex.length)return '';
+  var best={dist:null,spd:null,dur:null,cal:null};
+  ex.forEach(function(e){
+    if((e.distanceM||0)>(best.dist?best.dist.v:0))best.dist={v:e.distanceM,e:e};
+    var sp=e.avgSpeedKmh||0;
+    if(sp>(best.spd?best.spd.v:0))best.spd={v:sp,e:e};
+    if((e.durationSec||0)>(best.dur?best.dur.v:0))best.dur={v:e.durationSec,e:e};
+    if((e.totalCalories||e.calories||0)>(best.cal?best.cal.v:0))best.cal={v:(e.totalCalories||e.calories),e:e};
+  });
+  function paceTxt(v){if(!(v>0))return '--';var s=Math.round(3600/v);return Math.floor(s/60)+"'"+('0'+(s%60)).slice(-2)}
+  function cell(label,val,unit,b,color,icon){
+    if(!b)return '';
+    return '<div class="pb-cell"><span class="crown" style="color:'+color+'">'+icon+'</span>'+
+      '<div class="pk">'+label+'</div><div class="pv num" style="color:'+color+'">'+val+'<small>'+unit+'</small></div>'+
+      '<div class="pd">'+mdLabel(b.e.startSec)+' · '+esc(b.e.name||'锻炼')+'</div></div>';
+  }
+  var any=best.dist||best.spd||best.dur||best.cal;
+  if(!any)return '';
+  var h='<div class="card"><div class="ctitle"><i style="background:'+C.yellow+'"></i>个人最佳 · PB <span style="color:var(--sub2);font-weight:500;text-transform:none;letter-spacing:0;font-size:10px">· 全部历史</span></div>'+
+    '<div class="pb-grid">'+
+    cell('最长距离',best.dist?(best.dist.v/1000).toFixed(2):'--','km',best.dist,C.blue,'⤢')+
+    cell('最快配速',best.spd?paceTxt(best.spd.v):'--','/km',best.spd,C.red,'⚡')+
+    cell('最长时长',best.dur?durText(best.dur.v):'--','',best.dur,C.purple,'◷')+
+    cell('最高消耗',best.cal?num(best.cal.v):'--','kcal',best.cal,C.orange,'♨')+
+    '</div></div>';
+  return h;
+}
+function exercisePage(){
+  var ex=exercises();
+  if(!ex.length)return '<div class="empty"><div class="ico">◎</div><h2>还没有锻炼记录</h2><p>在手表上开始一次运动（跑步 / 骑行 / 健走…），<br>结束后到「小米运动健康」同步，<br>回来点下方重新读取即可看到。</p><button class="btn" style="color:'+C.green+';border-color:'+C.green+'55;background:'+C.green+'18" onclick="__reload()">重新读取</button></div>';
+  var now=Date.now()/1000,ws=now-6*86400,cnt=0,sec=0,dist=0,cal=0;
+  ex.forEach(function(e){if(e.startSec>=ws){cnt++;sec+=e.durationSec;dist+=e.distanceM;cal+=e.calories}});
+  var h='<div class="week4">'+
+   stat('本周次数',cnt,'次',C.green,'近 7 天','exStat')+
+   stat('本周时长',Math.round(sec/60),'分',C.blue,'目标 150 分钟','exStat')+
+   stat('本周距离',(dist/1000).toFixed(1),'km',C.orange,'累计','exStat')+
+   stat('本周消耗',num(cal),'千卡',C.red,'累计','exStat')+'</div>';
+
+  // 训练负荷（原首页移入锻炼页）
+  var a=days(),ld=latestDay(),lv=a.map(function(x){return x.trainingLoad||0}),ll=a.map(function(x){return mdShort(x.date)});
+  var cc=coach();
+  h+='<div class="card tap" style="margin-top:14px" onclick="openDetail(\'load\')"><div class="ctitle"><i style="background:'+C.mint+'"></i>今日训练负荷<span class="more">详情 ›</span></div>'+
+    '<div style="display:flex;align-items:baseline;gap:6px"><span class="num" style="font-size:38px;font-weight:800;color:'+C.mint+'">'+(ld.trainingLoad||'--')+'</span>'+
+    '<span style="font-size:12px;color:var(--sub)">'+(ld.trainingLoad>=70?'负荷偏高':ld.trainingLoad>=40?'适中':'偏低')+' · 与恢复状态匹配度见详情</span></div>'+
+    (lv.some(function(v){return v>0})?barChart(lv,ll,C.mint):'')+'</div>';
+
+  // 专业跑步指标：VO2max / 跑力指数 / 成绩预测
+  h+=perfCard();
+
+  // 个人最佳成绩 PB
+  h+=pbCard();
+
+  h+='<div class="ctitle" style="margin:16px 2px 12px"><i style="background:'+C.green+'"></i>全部记录 · 共 '+ex.length+' 场</div>';
+  ex.forEach(function(e,i){h+=exItem(e,i)});
+  return h;
+}
+function exItem(e,idx){
+  var c=EXC[e.colorIdx%6];
+  var chips='';
+  chips+='<span class="chip">时长 <b>'+durText(e.durationSec)+'</b></span>';
+  if(e.calories>0)chips+='<span class="chip">消耗 <b>'+num(e.calories)+' 千卡</b></span>';
+  if(e.avgHr>0)chips+='<span class="chip">均心率 <b>'+e.avgHr+'</b></span>';
+  if(e.pace)chips+='<span class="chip">配速 <b>'+e.pace+'</b></span>';
+  if(e.avgVerticalOscCm>0)chips+='<span class="chip">垂直振幅 <b>'+e.avgVerticalOscCm.toFixed(1)+' cm</b></span>';
+  var tag=e.hasTrack?'<span class="chip" style="color:'+C.blue+';border-color:'+C.blue+'55">含轨迹</span>':'';
+  return '<div class="exitem tap" onclick="openEx('+idx+')"><div class="exhead">'+
+   '<div class="badge" style="color:'+c+';background:'+c+'1f">'+esc(e.badge)+'</div>'+
+   '<div><div class="exname">'+esc(e.name)+'</div><div class="exdate">'+mdLabel(e.startSec)+' '+hhmm(e.startSec*1000)+'</div></div>'+
+   '<div class="exdist"><div class="a num">'+distText(e.distanceM)+'</div><div class="b">'+durText(e.durationSec)+'</div></div></div>'+
+   '<div class="exchips">'+chips+tag+'</div></div>';
+}
+
+/* ==================== AI 页 ==================== */
+function aiPage(){
+  if(!hasDays()&&!exercises().length)return emptyPage();
+  var c=coach(),h='';
+  if(c){
+    var rd=c.readiness||0,rd10=c.readiness10||clamp(Math.round(rd/10),1,10);
+    var lc=rd10>=9?C.green:rd10>=7?C.blue:rd10>=5?C.yellow:C.red;
+    h+='<div class="card"><div class="ctitle"><i style="background:'+C.blue+'"></i>今日身体准备度</div>'+
+     '<div class="ready-wrap">'+miniRing(rd,C.blue,104,rd10)+'<div class="ready-tx"><div class="ready-h">'+esc(c.headline)+'</div>'+
+     '<span class="ready-l" style="color:'+lc+';background:'+lc+'1f">'+(rd10>=9?'状态出色':rd10>=7?'状态良好':rd10>=5?'状态一般':'需要恢复')+' · '+rd10+'/10</span></div></div>'+
+     '<div class="todaytip" style="margin-top:14px;border-top:1px solid var(--line);padding-top:13px">'+esc(c.todayAdvice)+'</div></div>';
+    // 主流健康 App 核心洞察：周对比 / 睡眠债 / 作息规律
+    if(c.weekComparison)h+='<div class="card"><div class="ctitle"><i style="background:'+C.teal+'"></i>状态趋势 · 本周 vs 上周</div><div class="narrative">'+esc(c.weekComparison)+'</div></div>';
+    if(c.debtText)h+='<div class="card"><div class="ctitle"><i style="background:'+C.orange+'"></i>睡眠债</div><div class="narrative">'+esc(c.debtText)+'</div></div>';
+    if(c.regularityText)h+='<div class="card"><div class="ctitle"><i style="background:'+C.purple+'"></i>作息规律性</div><div class="narrative">'+esc(c.regularityText)+'</div></div>';
+    if(c.sleepAnalysis)h+='<div class="card"><div class="ctitle"><i style="background:'+C.purple+'"></i>睡眠与恢复分析</div><div class="narrative">'+esc(c.sleepAnalysis)+'</div></div>';
+    if(c.sportAnalysis)h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>运动健康分析</div><div class="narrative">'+esc(c.sportAnalysis)+'</div></div>';
+    if(c.trainingAdvice)h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>今日可执行建议</div><div class="narrative">'+esc(c.trainingAdvice)+'</div></div>';
+    if(c.summary)h+='<div class="card"><div class="ctitle"><i style="background:'+C.mint+'"></i>智能健康简报</div><div class="aisummary">'+esc(c.summary)+'</div></div>';
+  }
+  var ins=(DATA&&DATA.insights)?DATA.insights:[];
+  if(ins.length){
+    h+='<div class="ctitle" style="margin:4px 2px 12px"><i style="background:'+C.orange+'"></i>智能洞察</div>';
+    var cols=[C.green,C.orange,C.blue,C.red,C.purple];
+    ins.forEach(function(it){var col=cols[it.color%cols.length];
+      h+='<div class="card"><div class="ins"><div class="ic" style="color:'+col+';background:'+col+'1c">'+esc(it.icon)+'</div><div class="tx"><h4>'+esc(it.title)+'</h4><p>'+esc(it.detail)+'</p></div></div></div>'});
+  }
+  // 本地智能分析说明：所有解读均在本机计算，完全离线、无需联网、不上传任何数据
+  h+='<div class="card" style="margin-top:14px"><div class="ctitle"><i style="background:'+C.indigo+'"></i>智能分析引擎</div>'+
+     '<div class="segdesc">以上所有解读（准备度、睡眠与恢复、运动健康、训练建议、智能洞察）都由 App <b>在本机实时计算</b>，完全离线可用、秒级出结果，不会上传你的任何健康数据。无需联网、无需注册、不依赖任何外部服务。</div></div>';
+  return h;
+}
+/* ==================== 身体资料设置 ==================== */
+function openProfile(){
+  var p=window.__getProfile?window.__getProfile():{};
+  var male=!p.gender||p.gender==='male';
+  var html='<div class="modal" id="pfModal"><div class="modal-box">'+
+    '<div class="modal-h">身体资料 <span class="x" onclick="closeProfile()">✕</span></div>'+
+    '<div class="segdesc" style="margin:4px 0 14px">用于估算心率区间、能量消耗与个性化训练建议，并让睡眠/恢复解读更贴合你。仅保存在本机，不上传。</div>'+
+    '<label class="fl">性别</label>'+
+    '<div class="seg2"><label><input type="radio" name="pfGender" value="male" '+(male?'checked':'')+'> 男</label>'+
+    '<label><input type="radio" name="pfGender" value="female" '+(male?'':'checked')+'> 女</label></div>'+
+    '<label class="fl">年龄（岁）</label><input id="pfAge" class="fi" type="number" inputmode="numeric" value="'+(p.age||'')+'" placeholder="如 28">'+
+    '<label class="fl">身高（cm）</label><input id="pfHeight" class="fi" type="number" inputmode="numeric" value="'+(p.height||'')+'" placeholder="如 175">'+
+    '<label class="fl">体重（kg）</label><input id="pfWeight" class="fi" type="number" inputmode="decimal" step="0.1" value="'+(p.weight||'')+'" placeholder="如 68.5">'+
+    '<label class="fl">静息心率（bpm，选填，手表夜间心率更准）</label><input id="pfRestHr" class="fi" type="number" inputmode="numeric" value="'+(p.restHr||'')+'" placeholder="如 58">'+
+    '<button class="btn" style="width:100%;margin-top:6px;color:'+C.purple+';border-color:'+C.purple+'55;background:'+C.purple+'18" onclick="__saveProfile()">保存身体资料</button>'+
+    '</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+function closeProfile(){var m=document.getElementById('pfModal');if(m)m.remove()}
+
+/* ==================== 设备页 ==================== */
+function devicePage(){
+  var g=DIAG||{};
+  var pf=window.__getProfile?window.__getProfile():{};
+  var pfSet=(pf.age>0||pf.height>0||pf.weight>0);
+  var pfLine=pfSet?((pf.age?pf.age+'岁 · ':'')+(pf.height?pf.height+'cm · ':'')+(pf.weight?(+pf.weight).toFixed(1)+'kg':'')+(pf.restHr?' · 静息'+pf.restHr:'')+'bpm'):'未填写 · 填写后 AI 跑步与训练建议更精准';
+  var h='<div class="card tap" onclick="openProfile()"><div class="ctitle"><i style="background:'+C.purple+'"></i>身体资料<span class="more">编辑 ›</span></div>'+
+   '<div class="segdesc">'+esc(pfLine)+'</div>'+
+   '<div class="segdesc" style="font-size:11px;margin-top:6px">年龄 / 身高 / 体重 / 性别 / 静息心率 — 用于心率区间估算与 AI 个性化分析，仅存本机。</div></div>';
+  h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>连接状态</div>'+
+   sr(g.miInstalled,'数据源 小米运动健康',g.miInstalled?'已安装':'未检测到')+
+   sr(g.shellOk,'Root 通道',g.shellOk?(g.mode||'已连接'):'未连接')+
+   sr(g.dbFound,'数据库 cn/fitness_data',g.dbFound?'已定位':'未找到')+
+   sr(g.parsed,'数据解析',g.parsed?'成功':'失败')+
+   (g.dbPath?'<div class="srow"><div class="mk" style="color:'+C.blue+';background:'+C.blue+'1e">i</div><div class="dt" style="font-size:10px;word-break:break-all;max-width:82%">'+esc(g.dbPath)+'</div></div>':'')+'</div>';
+  h+='<div class="card"><div class="ctitle"><i style="background:'+C.blue+'"></i>诊断详情</div>';
+  var lines=(g.lines||[]);
+  if(lines.length){
+    h+='<div class="diagbox">';
+    lines.forEach(function(l){var cls=l.indexOf('[OK]')===0?'ok':l.indexOf('[X]')===0?'er':'';h+='<div class="'+cls+'">'+esc(l)+'</div>'});
+    if(g.trace)h+='<div style="margin-top:6px">'+esc(g.trace)+'</div>';
+    if(g.dbScan)h+='<div style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px">'+esc(g.dbScan)+'</div>';
+    h+='</div>';
+  }else h+='<div style="font-size:12px;color:var(--sub)">暂无诊断信息</div>';
+  h+='<button class="btn" style="color:'+C.blue+';border-color:'+C.blue+'55;background:'+C.blue+'15" onclick="__copyDiag()">复制诊断报告</button>'+
+   '<button class="btn" style="color:'+C.green+';border-color:'+C.green+'55;background:'+C.green+'15" onclick="__reload()">重新读取数据</button></div>';
+  h+='<div class="card"><div class="ctitle"><i style="background:'+C.purple+'"></i>自动同步</div>'+
+   '<div class="segdesc">每次<b style="color:'+C.blue+'">点开 App</b> 都会自动同步一次你的手表真实数据，无需手动操作。若你在「小米运动健康」里刚同步过，点右上角的 <b>↻</b> 可立即刷新。</div></div>';
+  h+='<div class="card"><div class="ctitle"><i style="background:'+C.orange+'"></i>如何读取</div>'+
+   '<div class="advice"><span class="dot">1</span><span>打开「小米运动健康」同步一次，睡眠 / 心率 / 锻炼会落到手机本地库</span></div>'+
+   '<div class="advice"><span class="dot">2</span><span>本 App 用 root 直接读 cn/fitness_data，与 mi-fit 同一套方案，不经过第三方</span></div>'+
+   '<div class="advice"><span class="dot">3</span><span>若 Root 已连接但数据库未找到：KernelSU 需为本 App 开启「全局命名空间」</span></div>'+
+   '<div class="advice"><span class="dot">4</span><span>只显示真实读取到的数据，读不到就留空，绝不填充演示数据</span></div></div>'+
+   '<button class="btn" style="color:'+C.blue+';border-color:'+C.blue+'55;background:'+C.blue+'15" onclick="__openMi()">打开小米运动健康</button>'+
+   '<button class="btn" style="color:'+C.green+';border-color:'+C.green+'55;background:'+C.green+'15" onclick="__openSettings()">Root / 命名空间设置</button>';
+  return h;
+}
+function sr(ok,label,detail){var c=ok?C.green:C.red;
+  return '<div class="srow"><div class="mk" style="color:'+c+';background:'+c+'1e">'+(ok?'✓':'✕')+'</div><div class="lb">'+label+'</div><div class="dt">'+esc(detail||'')+'</div></div>'}
+
+/* ==================== 二级详情页 ==================== */
+function detailPage(){
+  var a=days(),d=latestDay();
+  var t=detail;
+  // 睡眠完整分析（首页睡眠卡点进来）
+  if(t==='sleep')return subbar('睡眠分析')+sleepPage();
+  // 准备度
+  if(t==='readiness'){
+    var c=coach()||{},rd=c.readiness||0;
+    var rd10=c.readiness10||clamp(Math.round(rd/10),1,10);
+    var lc=rd10>=9?C.green:rd10>=7?C.blue:rd10>=5?C.yellow:C.red;
+    var h=subbar('今日身体准备度')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+lc+'">'+rd10+'<small> / 10</small></div><div class="l">'+esc(c.headline||'今天的身体状态')+'</div></div>'+
+      '<div class="todaytip" style="margin-top:14px;border-top:1px solid var(--line);padding-top:13px">'+esc(c.todayAdvice||'')+'</div></div>';
+    // 结果导向的核心洞察（不展示算法构成）
+    if(c.debtText)h+='<div class="card"><div class="ctitle"><i style="background:'+C.orange+'"></i>睡眠债</div>'+debtBadge()+'<div class="narrative" style="margin-top:11px">'+esc(c.debtText)+'</div></div>';
+    if(c.hrvText)h+='<div class="card"><div class="ctitle"><i style="background:'+SLEEP.rem+'"></i>身体恢复</div><div class="narrative">'+esc(c.hrvText)+'</div></div>';
+    if(c.regularityText)h+='<div class="card"><div class="ctitle"><i style="background:'+C.teal+'"></i>作息规律</div><div class="narrative">'+esc(c.regularityText)+'</div></div>';
+    if(c.sleepAnalysis)h+='<div class="card"><div class="ctitle"><i style="background:'+SLEEP.deep+'"></i>睡眠如何决定状态</div><div class="narrative">'+esc(c.sleepAnalysis)+'</div></div>';
+    if(c.trainingAdvice)h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>可执行训练建议</div><div class="narrative">'+esc(c.trainingAdvice)+'</div></div>';
+    return h;
+  }
+  // 心率（当天分时）
+  if(t==='hr'){
+    var ser=(d.series&&d.series.hr)?d.series.hr:[];
+    return subbar('心率')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+C.red+'">'+(d.avgHeartRate||'--')+'<small>bpm</small></div><div class="l">今日平均心率 · '+(d.date?mdShort(d.date):'')+'</div></div>'+
+      '<div class="kvrow"><span class="k">最低心率</span><span class="v num">'+(d.minHeartRate||'--')+' bpm</span></div>'+
+      '<div class="kvrow"><span class="k">最高心率</span><span class="v num">'+(d.maxHeartRate||'--')+' bpm</span></div>'+
+      '<div class="kvrow"><span class="k">夜间心率</span><span class="v num">'+((lastSleepDay()&&lastSleepDay().sleep.avgHeartRate)||'--')+' bpm</span></div></div>'+
+      '<div class="card"><div class="ctitle"><i style="background:'+C.red+'"></i>今日分时心率（00–24 时）</div>'+hourChart(ser,C.red)+'</div>'+
+      '<div class="hint">这是当天每小时的平均心率曲线。静息心率长期下降通常意味着心肺功能改善；短期升高可能与疲劳、压力或睡眠不足有关。</div>';
+  }
+  // 血氧（当天分时）
+  if(t==='spo2'){
+    var ser=(d.series&&d.series.spo2)?d.series.spo2:[];
+    return subbar('血氧饱和度')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+C.blue+'">'+(d.spo2||'--')+'<small>%</small></div><div class="l">今日平均血氧 · '+(d.date?mdShort(d.date):'')+'</div></div>'+
+      '<div class="segdesc" style="text-align:center">'+((d.spo2>=95)?'处于正常范围（≥95%）':(d.spo2>0?'略低于理想值，留意呼吸与睡眠':'暂无数据'))+'</div></div>'+
+      '<div class="card"><div class="ctitle"><i style="background:'+C.blue+'"></i>今日分时血氧（00–24 时）</div>'+hourChart(ser,C.blue)+'</div>'+
+      '<div class="hint">这是当天每小时的平均血氧。健康人血氧通常在 95–100%。持续低于 93% 建议关注睡眠呼吸或就医咨询。</div>';
+  }
+  // 压力（当天分时）
+  if(t==='stress'){
+    var ser=(d.series&&d.series.stress)?d.series.stress:[];
+    return subbar('压力指数')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+C.orange+'">'+(d.stress||'--')+'<small>/100</small></div><div class="l">今日压力指数 · 越低越好 · '+(d.date?mdShort(d.date):'')+'</div></div>'+
+      '<div class="segdesc" style="text-align:center">'+((d.stress<35)?'整体放松':(d.stress<55?'中等水平':'偏高，注意放松'))+'</div></div>'+
+      '<div class="card"><div class="ctitle"><i style="background:'+C.orange+'"></i>今日分时压力（00–24 时）</div>'+hourChart(ser,C.orange)+'</div>'+
+      '<div class="hint">这是当天每小时的平均压力。压力指数综合心率变异性、心率与活动计算。规律睡眠、深呼吸与适度运动有助于降低压力。</div>';
+  }
+  // 训练负荷
+  if(t==='load'){
+    var c=coach();
+    var lv=Math.round(d.trainingLoad||0);
+    var lvl=lv>=70?'偏高':lv>=40?'适中':'偏低';
+    return subbar('训练负荷')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+C.mint+'">'+(lv||'--')+'</div><div class="l">今日训练负荷 · '+(d.date?mdShort(d.date):'')+'</div></div>'+
+      '<div class="segdesc" style="text-align:center">当前负荷'+lvl+'，'+(lv>=70?'注意结合恢复状态安排强度，避免过度训练。':'与恢复状态基本匹配，可保持节奏。')+'</div></div>'+
+      (c&&c.sportAnalysis?'<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>AI 负荷评估</div><div class="narrative">'+esc(c.sportAnalysis)+'</div></div>':'')+
+      '<div class="hint">训练负荷反映运动对身体的累积压力。负荷应与恢复（睡眠、HRV）匹配，持续高负荷且恢复不足易导致过度训练。</div>';
+  }
+  // 步数（当天分时）
+  if(t==='steps'){
+    var ser=(d.series&&d.series.steps)?d.series.steps:[];
+    var goalp=clamp((d.steps||0)/10000,0,1);
+    return subbar('步数')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+C.red+'">'+(d.steps||0)+'<small>步</small></div><div class="l">今日步数 · '+(d.date?mdShort(d.date):'')+'</div></div>'+
+      '<div class="kvrow"><span class="k">今日目标</span><span class="v num">10,000 步 · '+Math.round(goalp*100)+'%</span></div>'+
+      '<div class="kvrow"><span class="k">站立时长</span><span class="v num">'+(d.standHours||0)+' 小时</span></div>'+
+      '<div class="kvrow"><span class="k">活动消耗</span><span class="v num">'+(d.calories||0)+' 千卡</span></div></div>'+
+      '<div class="card"><div class="ctitle"><i style="background:'+C.red+'"></i>今日分时步数（00–24 时）</div>'+hourChart(ser,C.red)+'</div>'+
+      '<div class="hint">这是当天每小时的步数分布。每日 8000–10000 步是常见目标，比绝对步数更重要的是保持规律与避免久坐。</div>';
+  }
+  // 今日活动时间
+  if(t==='activeTime'){
+    var em=d.exerciseMinutes||0;
+    return subbar('今日活动')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+C.green+'">'+em+'<small>分钟</small></div><div class="l">今日锻炼时长 · '+(d.date?mdShort(d.date):'')+'</div></div>'+
+      '<div class="kvrow"><span class="k">活动步数</span><span class="v num">'+num(d.steps||0)+' 步</span></div>'+
+      '<div class="kvrow"><span class="k">站立时长</span><span class="v num">'+(d.standHours||0)+' 小时</span></div>'+
+      '<div class="kvrow"><span class="k">活动消耗</span><span class="v num">'+(d.calories||0)+' 千卡</span></div></div>'+
+      '<div class="hint">活动时间来自当天手表记录的锻炼时长汇总（跑步、骑行、步行等）。在手表上完成运动后同步到小米运动健康即可显示。</div>';
+  }
+  // 锻炼周统计
+  if(t==='exStat'){
+    return subbar('本周运动统计')+'<div class="card"><div class="segdesc">'+esc((coach()&&coach().sportAnalysis)||'暂无运动分析')+'</div></div>';
+  }
+  // 单场锻炼详情
+  if(t==='exercise')return exerciseDetail(exOpen);
+  // 设备诊断（从空态进入）
+  if(t==='device'){
+    var html=devicePage();return subbar('设备与诊断')+html;
+  }
+  // 评分趋势
+  if(t==='trendScore'){
+    var sv=[];(DATA.scores||[]).forEach(function(x){if(x&&x.score>0)sv.push(x.score)});
+    return subbar('睡眠评分趋势')+'<div class="card"><div class="ctitle"><i style="background:'+C.purple+'"></i>近 '+sv.length+' 晚</div>'+lineChart(sv,C.purple)+'</div>'+
+      '<div class="hint">评分综合时长、深睡、REM、连续性与恢复质量。趋势比单晚数值更能反映作息变化。</div>';
+  }
+  return subbar('详情')+'<div class="card"><div class="segdesc">暂无更多数据</div></div>';
+}
+function openEx(i){detail='exercise';exOpen=i;render();window.scrollTo(0,0)}
+
+/** 最大心率估算：优先本场实测 maxHr，其次身体资料年龄(Tanaka 208-0.7×age)，否则 190 */
+function maxHeartRate(e){
+  if(e&&e.maxHr>120)return e.maxHr;
+  var p=(window.__getProfile?window.__getProfile():{})||{};
+  if(p.age>16)return Math.round(208-0.7*p.age);
+  return 190;
+}
+/** 心率区间分布（Z1–Z5）：基于逐点 hrCurve 按最大心率百分比分区，累加各区时长 */
+function hrZoneCard(e){
+  var curve=(e.hrCurve&&e.hrCurve.length)?e.hrCurve:[];
+  var valid=curve.filter(function(v){return v>50&&v<230});
+  // 无逐点心率时，用均心率/最大心率给一个粗略标注，不编造分布
+  if(valid.length<5)return '';
+  var hrmax=maxHeartRate(e);
+  // 5 个区间：Z1<60% Z2 60-70% Z3 70-80% Z4 80-90% Z5>=90%
+  var defs=[
+    {n:'Z1 恢复',lo:0,   hi:.60,c:'#8E8E93',desc:'热身 / 放松'},
+    {n:'Z2 燃脂',lo:.60, hi:.70,c:'#3B9EFF',desc:'有氧基础'},
+    {n:'Z3 有氧',lo:.70, hi:.80,c:'#30D158',desc:'心肺耐力'},
+    {n:'Z4 阈值',lo:.80, hi:.90,c:'#FF9F0A',desc:'乳酸阈值'},
+    {n:'Z5 无氧',lo:.90, hi:1.01,c:'#FF453A',desc:'最大冲刺'}
+  ];
+  var total=valid.length,counts=[0,0,0,0,0];
+  valid.forEach(function(v){
+    var r=v/hrmax,k=4;
+    for(var i=0;i<5;i++){if(r>=defs[i].lo&&r<defs[i].hi){k=i;break}}
+    counts[k]++;
+  });
+  var dur=e.durationSec||0;
+  var rows='',bar='';
+  defs.forEach(function(z,i){
+    var pct=counts[i]/total*100, mins=Math.round(dur*counts[i]/total/60);
+    rows+='<div class="zone-row"><span class="zone-tag" style="color:'+z.c+'">'+z.n.split(' ')[0]+'</span>'+
+      '<div class="zone-track"><div class="zf" style="width:'+pct.toFixed(1)+'%;background:linear-gradient(90deg,'+z.c+'aa,'+z.c+')"></div></div>'+
+      '<span class="zone-meta"><b>'+mins+'</b> 分 <span class="pct">'+Math.round(pct)+'%</span></span></div>';
+    if(pct>0.5)bar+='<span style="width:'+pct.toFixed(1)+'%;background:'+z.c+'" title="'+z.n+' '+Math.round(pct)+'%"></span>';
+  });
+  // 主场区间：占比最高的区间
+  var top=0;for(var i=1;i<5;i++)if(counts[i]>counts[top])top=i;
+  var high=counts[3]+counts[4],highPct=Math.round(high/total*100);
+  var h='<div class="card"><div class="ctitle"><i style="background:'+defs[top].c+'"></i>心率区间分布 <span style="color:var(--sub2);font-weight:500;text-transform:none;letter-spacing:0;font-size:10px">· 最大心率 '+hrmax+' bpm</span></div>'+
+    '<div class="zones">'+rows+'</div>'+
+    '<div class="zone-bar">'+bar+'</div>'+
+    '<div class="zone-summary"><span>低强度 Z1–Z2 '+Math.round((counts[0]+counts[1])/total*100)+'%</span><span>高强度 Z4–Z5 '+highPct+'%</span></div>'+
+    '<div class="hint" style="margin-top:11px">这场以 <b style="color:'+defs[top].c+'">'+defs[top].n+'（'+defs[top].desc+'）</b> 为主。'+
+    (highPct>=35?'高强度占比较高，是一次偏强度的训练，注意安排恢复。':highPct>=15?'有氧与阈值兼顾，训练结构较均衡。':'以低强度有氧为主，适合打基础与恢复。')+'</div></div>';
+  return h;
+}
+function exerciseDetail(i){
+  var e=exercises()[i];if(!e)return subbar('锻炼详情')+'<div class="empty"><p>记录不存在</p></div>';
+  var c=EXC[e.colorIdx%6];
+  // 主流运动 App 版式：大号平均配速为主 + 距离/时长/消耗三要素 + 心率/速度次要行
+  var spdKmh=e.avgSpeedKmh>0?e.avgSpeedKmh:(e.paceSecPerKm>0?3600/e.paceSecPerKm:0);
+  var maxSpd=e.maxSpeedKmh>0?e.maxSpeedKmh:0;
+  var h=subbar(e.name||'锻炼详情')+'<div class="card"><div class="exhead">'+
+   '<div class="badge" style="color:'+c+';background:'+c+'1f">'+esc(e.badge)+'</div>'+
+   '<div><div class="exname">'+esc(e.name)+'</div><div class="exdate">'+mdLabel(e.startSec)+' '+hhmm(e.startSec*1000)+'</div></div></div>'+
+   '<div class="pace-hero"><div class="ph-main num">'+(e.pace||'--')+'<small>/km</small></div>'+
+     '<div class="ph-sub">平均配速</div>'+
+     '<div class="ph-row"><div><b class="num">'+esc(spdKmh>0?spdKmh.toFixed(1):'--')+'</b><span>km/h 均速</span></div>'+
+     '<div><b class="num">'+esc(maxSpd>0?maxSpd.toFixed(1):'--')+'</b><span>km/h 最快</span></div></div></div>'+
+   '<div class="tri-grid">'+
+    '<div><div class="tg-v num">'+(e.distanceM/1000).toFixed(2)+'</div><div class="tg-u">km 距离</div></div>'+
+    '<div><div class="tg-v num">'+durText(e.durationSec)+'</div><div class="tg-u">运动时长</div></div>'+
+    '<div><div class="tg-v num">'+num(e.totalCalories||e.calories)+'</div><div class="tg-u">千卡消耗</div></div>'+
+   '</div>'+
+   '<div class="mgrid" style="margin-top:4px">'+
+    mcell('平均心率',e.avgHr||'--','bpm','最大 '+(e.maxHr||'--'))+
+    mcell('平均步频',e.avgCadence||'--','步/分','')+
+    mcell('平均步幅',(e.avgStrideCm>0?Math.round(e.avgStrideCm):'--'),'cm','')+
+    mcell('累计爬升',Math.round(e.ascentM||e.trackAscent||0),'m','')+
+   '</div></div>';
+  // 轨迹地图
+  if(e.hasTrack&&e.track&&e.track.length>1){
+    var p0=e.track[0];
+    var pl=placeOf(p0[0],p0[1]);
+    var placeTxt=pl.km<80?(pl.name+'附近'):(pl.name+'方向 · 约 '+Math.round(pl.km)+' km');
+    var coord=p0[0].toFixed(4)+'°N, '+p0[1].toFixed(4)+'°E';
+    var geoKey=i+'_'+Math.round(p0[0]*1000)+'_'+Math.round(p0[1]*1000);
+    var cached=GEO_CACHE[geoKey];
+    var addrTxt=cached||placeTxt;
+    h+='<div class="card"><div class="ctitle"><i style="background:'+C.blue+'"></i>运动轨迹 · 卫星图</div>'+
+      '<div class="maprow"><span class="pin">📍</span><span><span id="geoAddr_'+geoKey+'">'+esc(addrTxt)+'</span>'+(cached?'':' <span style="color:var(--sub2);font-size:10px">· 定位中…</span>')+'　<span style="color:var(--sub2)">'+coord+'</span></span></div>'+
+      trackSVG(e.track)+
+      '<div class="mgrid" style="margin-top:12px">'+
+       mcell('累计爬升',Math.round(e.ascentM||e.trackAscent||0),'m','')+
+       mcell('累计下降',Math.round(e.descentM||e.trackDescent||0),'m','')+
+       mcell('最高海拔',Math.round(e.maxAltM||0),'m','')+
+       mcell('最高速度',(e.maxSpeedKmh||e.trackMaxSpeedKmh||0).toFixed(1),'km/h','')+
+      '</div></div>'+
+      splitPaceBar(e.track);
+  }
+  // 跑步动态
+  if((e.avgVerticalOscCm||0)>0||(e.avgGroundContactMs||0)>0||(e.avgVerticalRatio||0)>0){
+    h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>跑步动态 · 专业数据</div><div class="dyn">';
+    if(e.avgVerticalOscCm>0)h+=dynCell('平均垂直振幅',e.avgVerticalOscCm.toFixed(1),'cm',e.avgVerticalOscCm<9?'较小，经济性好':'可继续优化');
+    if(e.maxVerticalOscCm>0)h+=dynCell('最大垂直振幅',e.maxVerticalOscCm.toFixed(1),'cm','');
+    if(e.avgGroundContactMs>0)h+=dynCell('平均触地时间',Math.round(e.avgGroundContactMs),'ms',e.avgGroundContactMs<200?'触地迅速':'适中');
+    if(e.maxGroundContactMs>0)h+=dynCell('最大触地时间',Math.round(e.maxGroundContactMs),'ms','');
+    if(e.avgVerticalRatio>0)h+=dynCell('垂直步幅比',e.avgVerticalRatio.toFixed(1),'%',e.avgVerticalRatio<8?'优秀(<8%)':'良好');
+    if(e.avgCadence>0)h+=dynCell('平均步频',e.avgCadence,'步/分',e.avgCadence>=170?'理想区间':'可提升');
+    if(e.avgStrideCm>0)h+=dynCell('平均步幅',Math.round(e.avgStrideCm),'cm','');
+    if(e.ascentM>0)h+=dynCell('累计爬升',Math.round(e.ascentM),'m','');
+    h+='</div></div>';
+  } else {
+    h+='<div class="hint">这场运动没有跑步动态数据（垂直振幅/触地时间等）。这类数据由手表在户外跑步等运动中记录。</div>';
+  }
+  // 心率区间分布（主流运动 App 标配）
+  h+=hrZoneCard(e);
+  // 曲线（对齐 mi-fit 口径：遇 0 断开、有效值定范围、带坐标轴）
+  var curves=[
+    ['心率',e.hrCurve,C.red,'bpm',function(v){return Math.round(v)+''}],
+    ['配速',e.paceCurve,C.purple,'pace',function(v){var s=Math.round(v);return Math.floor(s/60)+"'"+('0'+(s%60)).slice(-2)}],
+    ['海拔',e.altCurve,C.orange,'m',function(v){return Math.round(v)+' m'}],
+    ['步频',e.cadCurve,C.green,'spm',function(v){return Math.round(v)+' 步/分'}],
+    ['速度',e.spdCurve,C.blue,'km/h',function(v){return v.toFixed(1)+' km/h'}],
+    ['垂直振幅',e.vampCurve,C.teal,'cm',function(v){return v.toFixed(1)+' cm'}]
+  ];
+  var hasCurve=false;curves.forEach(function(x){if(x[1]&&x[1].length>1&&x[1].some(function(v){return v>0}))hasCurve=true});
+  if(hasCurve){
+    h+='<div class="ctitle" style="margin:16px 2px 12px"><i style="background:'+C.blue+'"></i>逐点曲线 <span style="color:var(--sub2);font-weight:500;font-size:11px">· 按 mi-fit 口径解码</span></div>';
+    curves.forEach(function(x){
+      if(!(x[1]&&x[1].length>1))return;
+      var vv=x[1].filter(function(v){return v>0&&isFinite(v)});if(!vv.length)return;
+      var avg=vv.reduce(function(a,b){return a+b},0)/vv.length;
+      h+='<div class="card curvecard"><div class="curvelabel"><span>'+x[0]+' <span style="color:var(--sub2)">（'+x[3]+'）</span></span><b>'+x[4](avg)+' <span style="color:var(--sub2);font-size:10px;font-weight:500">均值</span></b></div>'+lineChart(x[1],x[2],true,x[3],true)+'</div>';
+    });
+  }
+  return h;
+}
+function dynCell(k,v,u,j){return '<div class="dyncell"><div class="k">'+k+'</div><div class="v num">'+v+'<small> '+u+'</small></div>'+(j?'<div class="j">'+j+'</div>':'')+'</div>'}
+
+/* ---------- render ---------- */
+function render(){
+  renderHeader();renderTabs();
+  var p=document.getElementById('page');
+  if(detail)p.innerHTML=detailPage();
+  else p.innerHTML=cur===0?overview():cur===1?exercisePage():cur===2?aiPage():devicePage();
+  // 锻炼详情页：对有轨迹的场次发起逆地理编码，拿到详细地址后异步回填
+  if(detail==='exercise'&&exOpen>=0){
+    var e=exercises()[exOpen];
+    if(e&&e.hasTrack&&e.track&&e.track.length>1){
+      var p0=e.track[0];
+      var gk=exOpen+'_'+Math.round(p0[0]*1000)+'_'+Math.round(p0[1]*1000);
+      window.__geoLookup(p0[0],p0[1],gk);
+    }
+  }
+}
+render();
+
+/* ---------- 返回：由 Android 系统返回键/手势驱动，逐级退回概览主页面 ---------- */
+function __canGoBack(){
+  return !!(document.getElementById('pfModal') || document.getElementById('aiCfgModal') || detail || cur!==0);
+}
+function __doBack(){
+  if(document.getElementById('pfModal')){ closeProfile(); return; }
+  if(document.getElementById('aiCfgModal')){ closeAiConfig(); return; }
+  if(detail){ closeDetail(); return; }
+  if(cur!==0){ go(0); return; }
+}
+window.__canGoBack=__canGoBack;
+window.__doBack=__doBack;
+</script>
+</body>
+</html>
