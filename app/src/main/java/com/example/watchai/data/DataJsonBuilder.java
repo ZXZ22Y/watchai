@@ -111,6 +111,18 @@ public class DataJsonBuilder {
             } catch (Exception ignored) { }
             o.put("insights", ins);
 
+            // 从手表真实数据自动提取的心率基线（静息心率 / 最大心率）
+            com.example.watchai.analysis.HeartRateBaseline.Result baseline =
+                    com.example.watchai.analysis.HeartRateBaseline.compute(data);
+            JSONObject hb = new JSONObject();
+            hb.put("restHr", baseline.restHr);
+            hb.put("restSource", baseline.restSource);
+            hb.put("restSamples", baseline.restSamples);
+            hb.put("maxHr", baseline.maxHr);
+            hb.put("maxSource", baseline.maxSource);
+            hb.put("maxSamples", baseline.maxSamples);
+            o.put("hrBaseline", hb);
+
             // 锻炼记录（含专业跑步动态 + 逐点轨迹/曲线）
             JSONArray exs = new JSONArray();
             if (data.exercises != null) {
@@ -183,6 +195,8 @@ public class DataJsonBuilder {
                     rmp.age = profile.age; rmp.restHr = profile.restHr;
                     rmp.weightKg = profile.weightKg; rmp.gender = profile.gender;
                 }
+                // 静息心率未手填时，用手表自动提取的基线值参与心率储备计算
+                if (rmp.restHr <= 0 && baseline.restHr > 0) rmp.restHr = baseline.restHr;
                 com.example.watchai.analysis.RunningMetrics.Result perf =
                         com.example.watchai.analysis.RunningMetrics.analyze(data.exercises, rmp);
                 JSONObject pf = new JSONObject();

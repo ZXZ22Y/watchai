@@ -394,6 +394,7 @@ html,body{background:var(--bg);color:var(--text);
 .pred-cell{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .pred-cell .k{font-size:11px;color:var(--sub)}
 .pred-cell .v{font-size:19px;font-weight:800;margin-top:3px;color:var(--text)}
+.pred-cell .sub{font-size:9px;color:var(--sub2);margin-top:3px;line-height:1.3}
 /* 个人最佳 PB */
 .pb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pb-cell{position:relative;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 13px;overflow:hidden}
@@ -511,6 +512,7 @@ function latestDay(){var a=days();return a.length?a[a.length-1]:{}}
 function exercises(){return (DATA&&DATA.exercises)?DATA.exercises:[]}
 function coach(){return (DATA&&DATA.coach)?DATA.coach:null}
 function scores(){return (DATA&&DATA.scores)?DATA.scores:[]}
+function hrBaseline(){return (DATA&&DATA.hrBaseline)?DATA.hrBaseline:{}}
 function lastSleepDay(){var a=days();for(var i=a.length-1;i>=0;i--)if(a[i].sleep&&a[i].sleep.totalMinutes>0)return a[i];return null}
 function lastScore(){var a=scores();for(var i=a.length-1;i>=0;i--)if(a[i]&&a[i].score>0)return a[i];return null}
 function ago(){if(!updatedAt)return '';var s=Math.floor((Date.now()-updatedAt)/1000);if(s<10)return '刚刚更新';if(s<60)return s+' 秒前更新';if(s<3600)return Math.floor(s/60)+' 分钟前更新';return Math.floor(s/3600)+' 小时前更新'}
@@ -921,7 +923,7 @@ function renderTabs(){
   var wrap=document.querySelector('.tabs-wrap');
   if(detail){wrap.style.display='none';return}
   wrap.style.display='';
-  var names=['概览','锻炼','AI','设备'],h='';
+  var names=['概览','锻炼','分析','设备'],h='';
   names.forEach(function(n,i){
     h+='<div class="tab'+(cur===i?' on':'')+'" onclick="go('+i+')"><span class="ic" style="'+(cur===i?'color:'+TABCO[i]:'')+'">'+TABIC[i]+'</span><span class="nm">'+n+'</span></div>';
   });
@@ -971,25 +973,25 @@ function overview(){
   var lc=rd10>=9?C.green:rd10>=7?C.blue:rd10>=5?C.yellow:C.red;
   var label=rd10>=9?'状态出色':rd10>=7?'状态良好':rd10>=5?'状态一般':'需要恢复';
   var sc=lastScore(),sd=lastSleepDay();
-  var h='';
-  // ---- 准备度英雄卡：1-10 分，不展示评分构成细节 ----
-  h+='<div class="hero tap" onclick="openDetail(\'readiness\')">'+
+  var hb=hrBaseline();
+  // 每个区块带优先级 p（数字越小越靠前），最后统一按重要性排序——重要数据自动前置
+  var blocks=[];
+
+  // ---- 准备度英雄卡（置顶）----
+  var hero='<div class="hero tap" onclick="openDetail(\'readiness\')">'+
    '<div class="cap">今日身体准备度 · READINESS</div>'+
    '<div class="hero-main">'+readinessArc(rd,'')+
    '<div><div class="hero-num num">'+rd10+'<small> / 10</small></div>'+
    '<span class="hero-tag" style="color:'+lc+';background:'+lc+'22">'+label+'</span></div></div>'+
    '<div class="hero-sub">';
   if(sd&&sc){
-    var sh=(sd.sleep.totalMinutes/60).toFixed(1);
-    h+='综合昨晚睡眠与身体恢复，今天的准备度为 <b>'+rd10+' 分</b>。'+
+    hero+='综合昨晚睡眠与身体恢复，今天的准备度为 <b>'+rd10+' 分</b>。'+
        '<span style="color:'+C.blue+'"> 查看解读 ›</span>';
-  }else h+='暂无昨晚睡眠数据，同步手表后我会为你评估今天的身体状态。';
-  h+='</div></div>';
+  }else hero+='暂无昨晚睡眠数据，同步手表后我会为你评估今天的身体状态。';
+  hero+='</div></div>';
+  blocks.push({p:10,h:hero});
 
-  // ---- 活动：Apple 健身风格三环（活动/锻炼/站立）----
-  h+='<div class="card"><div class="ctitle">今日活动</div>'+activityRings(d)+'</div>';
-
-  // ---- 睡眠摘要（保留标题样式，重做内容：无大圆环，柔和配色 + 睡眠债徽章）----
+  // ---- 昨晚睡眠（恢复的核心，前置）----
   var sc0=lastScore(),sd0=lastSleepDay();
   if(sd0&&sd0.sleep&&sd0.sleep.totalMinutes>0){
     var ss=sd0.sleep,deep0=ss.deepMinutes||0,light0=ss.lightMinutes||0,rem0=ss.remMinutes||0,awake0=ss.awakeMinutes||0;
@@ -999,7 +1001,7 @@ function overview(){
     var gradeTxt=hasScore?esc(sc0.level):'睡眠记录';
     var scoreNum=hasScore?sc0.score:Math.round(asleep/tot0*100);
     var scoreLbl=hasScore?'睡眠分':'效率%';
-    h+='<div class="card tap" onclick="openDetail(\'sleep\')"><div class="ctitle"><i style="background:'+SLEEP.deep+'"></i>昨晚睡眠 · '+mdShort(sd0.date)+'<span class="more">完整分析 ›</span></div>'+
+    var sleepCard='<div class="card tap" onclick="openDetail(\'sleep\')"><div class="ctitle"><i style="background:'+SLEEP.deep+'"></i>昨晚睡眠 · '+mdShort(sd0.date)+'<span class="more">完整分析 ›</span></div>'+
       '<div class="sleep-hero"><div class="sh-left"><div class="sh-time num">'+hm(asleep)+'</div>'+
       '<div class="sh-sub"><span class="sh-grade" style="color:'+scol+';background:'+scol+'1e">'+gradeTxt+'</span>'+
       '<span class="sh-hrv">恢复 HRV '+(ss.avgHrv||'--')+' ms</span></div></div>'+
@@ -1012,30 +1014,50 @@ function overview(){
       '<div class="stages-legend" style="margin-top:11px">'+sl(SLEEP.deep,'深睡',deep0)+sl(SLEEP.light,'浅睡',light0)+sl(SLEEP.rem,'REM',rem0)+sl(SLEEP.awake,'清醒',awake0)+'</div>'+
       debtBadge()+
       '</div>';
+    blocks.push({p:20,h:sleepCard});
   }
 
-  // ---- 核心指标（可点击进二级页）----
-  h+='<div class="stat-grid">'+
-   stat('心率',d.avgHeartRate,'bpm',C.red,d.minHeartRate&&d.maxHeartRate?(d.minHeartRate+'–'+d.maxHeartRate+' 区间'):'今日均值','hr')+
-   stat('血氧',d.spo2,'%',C.blue,'今日均值','spo2')+
-   stat('压力',d.stress,'',C.orange,'越低越好','stress')+
-   stat('活动',d.exerciseMinutes,'分钟',C.green,'今日锻炼','activeTime')+'</div>';
+  // ---- 个人心率基线（自动获取，核心健康指标，前置）----
+  if(hb.restHr>0||hb.maxHr>0){
+    var hrCard='<div class="card"><div class="ctitle"><i style="background:'+C.red+'"></i>心率基线 <span style="color:'+C.mint+';font-size:10px;font-weight:600;letter-spacing:0;text-transform:none">⌁ 手表自动获取</span><span class="more" onclick="openDetail(\'hr\')">详情 ›</span></div>'+
+      '<div class="pred-grid" style="margin:2px 0 0">'+
+        '<div class="pred-cell"><div class="k">静息心率</div><div class="v num" style="color:'+C.mint+'">'+(hb.restHr||'--')+'<small style="font-size:10px;color:var(--sub2)"> bpm</small></div><div class="sub">'+(hb.restSource||'数据不足')+'</div></div>'+
+        '<div class="pred-cell"><div class="k">最大心率</div><div class="v num" style="color:'+C.red+'">'+(hb.maxHr||'--')+'<small style="font-size:10px;color:var(--sub2)"> bpm</small></div><div class="sub">'+(hb.maxSource||'数据不足')+'</div></div>'+
+      '</div></div>';
+    blocks.push({p:25,h:hrCard});
+  }
 
-  // ---- 近 7 天步数（可点击）----
-  var a=days(),steps=a.map(function(x){return x.steps||0}),labels=a.map(function(x){return mdShort(x.date)});
-  if(steps.some(function(v){return v>0}))
-    h+='<div class="card tap" style="margin-top:14px" onclick="openDetail(\'steps\')"><div class="ctitle"><i style="background:'+C.red+'"></i>近 '+a.length+' 天步数<span class="more">详情 ›</span></div>'+barChart(steps,labels,C.red)+'</div>';
+  // ---- 今日活动：Apple 健身风格三环 ----
+  blocks.push({p:30,h:'<div class="card"><div class="ctitle">今日活动</div>'+activityRings(d)+'</div>'});
 
-  // ---- 最近锻炼（点击进入该场详情）----
+  // ---- 最近锻炼（有记录则前置，运动是核心数据）----
   var ex=exercises();
   if(ex.length){
     var e=ex[0];
-    h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>最近锻炼<span class="more" onclick="go(2)">全部 ›</span></div>'+
+    var exPace=(e.pace&&String(e.pace).replace(/[^0-9]/g,''))?esc(e.pace)+'/km':'';
+    var exCard='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>最近锻炼<span class="more" onclick="go(2)">全部 ›</span></div>'+
      '<div class="exhead tap" onclick="openEx(0)"><div class="badge" style="color:'+EXC[e.colorIdx%6]+';background:'+EXC[e.colorIdx%6]+'1f">'+esc(e.badge)+'</div>'+
-     '<div><div class="exname">'+esc(e.name)+'</div><div class="exdate">'+mdLabel(e.startSec)+' '+hhmm(e.startSec*1000)+'</div></div>'+
+     '<div><div class="exname">'+esc(e.name)+'</div><div class="exdate">'+mdLabel(e.startSec)+' '+hhmm(e.startSec*1000)+(exPace?' · '+exPace:'')+'</div></div>'+
      '<div class="exdist"><div class="a num">'+distText(e.distanceM)+'</div><div class="b">'+durText(e.durationSec)+'</div></div></div></div>';
+    blocks.push({p:40,h:exCard});
   }
-  return h;
+
+  // ---- 核心指标（自动过滤无数据项）----
+  var stats=[];
+  if(d.avgHeartRate>0)stats.push(stat('心率',d.avgHeartRate,'bpm',C.red,(d.minHeartRate&&d.maxHeartRate?(d.minHeartRate+'–'+d.maxHeartRate+' 区间'):'今日均值'),'hr'));
+  if(d.spo2>0)stats.push(stat('血氧',d.spo2,'%',C.blue,'今日均值','spo2'));
+  if(d.stress>0)stats.push(stat('压力',d.stress,'',C.orange,'越低越好','stress'));
+  if(d.exerciseMinutes>0)stats.push(stat('活动',d.exerciseMinutes,'分钟',C.green,'今日锻炼','activeTime'));
+  if(stats.length)blocks.push({p:50,h:'<div class="stat-grid">'+stats.join('')+'</div>'});
+
+  // ---- 近 7 天步数（趋势类，后置）----
+  var a=days(),steps=a.map(function(x){return x.steps||0}),labels=a.map(function(x){return mdShort(x.date)});
+  if(steps.some(function(v){return v>0}))
+    blocks.push({p:60,h:'<div class="card tap" style="margin-top:14px" onclick="openDetail(\'steps\')"><div class="ctitle"><i style="background:'+C.red+'"></i>近 '+a.length+' 天步数<span class="more">详情 ›</span></div>'+barChart(steps,labels,C.red)+'</div>'});
+
+  // 按优先级排序：重要数据自动排到前面
+  blocks.sort(function(x,y){return x.p-y.p});
+  return blocks.map(function(b){return b.h||''}).join('');
 }
 /** Apple 健身风格三环：活动(步)/锻炼(分钟)/站立(小时)，同心圆环 */
 function activityRings(d){
@@ -1374,18 +1396,23 @@ function aiPage(){
 /* ==================== 身体资料设置 ==================== */
 function openProfile(){
   var p=window.__getProfile?window.__getProfile():{};
+  var b=hrBaseline();
   var male=!p.gender||p.gender==='male';
   var html='<div class="modal" id="pfModal"><div class="modal-box">'+
     '<div class="modal-h">身体资料 <span class="x" onclick="closeProfile()">✕</span></div>'+
-    '<div class="segdesc" style="margin:4px 0 14px">用于估算心率区间、能量消耗与个性化训练建议，并让睡眠/恢复解读更贴合你。仅保存在本机，不上传。</div>'+
+    '<div class="segdesc" style="margin:4px 0 14px">用于估算心率区间、能量消耗与个性化训练建议。仅保存在本机，不上传。</div>'+
     '<label class="fl">性别</label>'+
     '<div class="seg2"><label><input type="radio" name="pfGender" value="male" '+(male?'checked':'')+'> 男</label>'+
     '<label><input type="radio" name="pfGender" value="female" '+(male?'':'checked')+'> 女</label></div>'+
     '<label class="fl">年龄（岁）</label><input id="pfAge" class="fi" type="number" inputmode="numeric" value="'+(p.age||'')+'" placeholder="如 28">'+
     '<label class="fl">身高（cm）</label><input id="pfHeight" class="fi" type="number" inputmode="numeric" value="'+(p.height||'')+'" placeholder="如 175">'+
     '<label class="fl">体重（kg）</label><input id="pfWeight" class="fi" type="number" inputmode="decimal" step="0.1" value="'+(p.weight||'')+'" placeholder="如 68.5">'+
-    '<label class="fl">静息心率（bpm，选填，手表夜间心率更准）</label><input id="pfRestHr" class="fi" type="number" inputmode="numeric" value="'+(p.restHr||'')+'" placeholder="如 58">'+
-    '<button class="btn" style="width:100%;margin-top:6px;color:'+C.purple+';border-color:'+C.purple+'55;background:'+C.purple+'18" onclick="__saveProfile()">保存身体资料</button>'+
+    '<label class="fl">静息心率（bpm）'+(b.restHr>0?' · <span style="color:'+C.mint+'">已自动获取 '+b.restHr+'</span>':'')+'</label>'+
+    '<input id="pfRestHr" class="fi" type="number" inputmode="numeric" value="'+(p.restHr||'')+'" placeholder="'+(b.restHr>0?'留空即用手表自动值 '+b.restHr:'如 58')+'">'+
+    '<div class="hint" style="margin:6px 0 10px">'+(b.restHr>0?'已从手表历史数据自动识别静息心率（'+esc(b.restSource)+'），留空即自动使用；若你知晓确切值可手动覆盖。':'手表数据暂不足以自动识别静息心率，可手动填写。')+'</div>'+
+    '<label class="fl">最大心率（bpm）'+(b.maxHr>0?' · <span style="color:'+C.red+'">已自动获取 '+b.maxHr+'</span>':'')+'</label>'+
+    '<div class="segdesc" style="padding:9px 12px;background:var(--card2);border:1px solid var(--line);border-radius:12px">'+(b.maxHr>0?('手表历史运动实测峰值 <b style="color:'+C.red+'">'+b.maxHr+' bpm</b>（'+esc(b.maxSource)+'）+ 心率区间与训练强度均以此自动计算。'):'手表数据暂不足以自动识别最大心率，心率区间将按年龄公式估算。')+'</div>'+
+    '<button class="btn" style="width:100%;margin-top:14px;color:'+C.purple+';border-color:'+C.purple+'55;background:'+C.purple+'18" onclick="__saveProfile()">保存身体资料</button>'+
     '</div></div>';
   document.body.insertAdjacentHTML('beforeend',html);
 }
@@ -1396,10 +1423,13 @@ function devicePage(){
   var g=DIAG||{};
   var pf=window.__getProfile?window.__getProfile():{};
   var pfSet=(pf.age>0||pf.height>0||pf.weight>0);
-  var pfLine=pfSet?((pf.age?pf.age+'岁 · ':'')+(pf.height?pf.height+'cm · ':'')+(pf.weight?(+pf.weight).toFixed(1)+'kg':'')+(pf.restHr?' · 静息'+pf.restHr:'')+'bpm'):'未填写 · 填写后 AI 跑步与训练建议更精准';
+  var hb=hrBaseline();
+  var pfLine=pfSet?((pf.age?pf.age+'岁 · ':'')+(pf.height?pf.height+'cm · ':'')+(pf.weight?(+pf.weight).toFixed(1)+'kg':'')):'未填写';
+  var hrLine='静息 '+(hb.restHr||'--')+' / 最大 '+(hb.maxHr||'--')+' bpm · 手表自动获取';
   var h='<div class="card tap" onclick="openProfile()"><div class="ctitle"><i style="background:'+C.purple+'"></i>身体资料<span class="more">编辑 ›</span></div>'+
    '<div class="segdesc">'+esc(pfLine)+'</div>'+
-   '<div class="segdesc" style="font-size:11px;margin-top:6px">年龄 / 身高 / 体重 / 性别 / 静息心率 — 用于心率区间估算与 AI 个性化分析，仅存本机。</div></div>';
+   '<div class="segdesc" style="color:'+C.mint+';font-size:11px;margin-top:4px">⌁ '+esc(hrLine)+'</div>'+
+   '<div class="segdesc" style="font-size:11px;margin-top:6px">静息 / 最大心率已从手表历史数据自动识别，无需填写；年龄身高体重用于心率区间与能耗估算，仅存本机。</div></div>';
   h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>连接状态</div>'+
    sr(g.miInstalled,'数据源 小米运动健康',g.miInstalled?'已安装':'未检测到')+
    sr(g.shellOk,'Root 通道',g.shellOk?(g.mode||'已连接'):'未连接')+
@@ -1455,12 +1485,23 @@ function detailPage(){
   // 心率（当天分时）
   if(t==='hr'){
     var ser=(d.series&&d.series.hr)?d.series.hr:[];
-    return subbar('心率')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+C.red+'">'+(d.avgHeartRate||'--')+'<small>bpm</small></div><div class="l">今日平均心率 · '+(d.date?mdShort(d.date):'')+'</div></div>'+
+    var hb=hrBaseline(), autop=(hb.restHr>0||hb.maxHr>0);
+    var h=subbar('心率')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+C.red+'">'+(d.avgHeartRate||'--')+'<small>bpm</small></div><div class="l">今日平均心率 · '+(d.date?mdShort(d.date):'')+'</div></div>'+
       '<div class="kvrow"><span class="k">最低心率</span><span class="v num">'+(d.minHeartRate||'--')+' bpm</span></div>'+
       '<div class="kvrow"><span class="k">最高心率</span><span class="v num">'+(d.maxHeartRate||'--')+' bpm</span></div>'+
-      '<div class="kvrow"><span class="k">夜间心率</span><span class="v num">'+((lastSleepDay()&&lastSleepDay().sleep.avgHeartRate)||'--')+' bpm</span></div></div>'+
-      '<div class="card"><div class="ctitle"><i style="background:'+C.red+'"></i>今日分时心率（00–24 时）</div>'+hourChart(ser,C.red)+'</div>'+
-      '<div class="hint">这是当天每小时的平均心率曲线。静息心率长期下降通常意味着心肺功能改善；短期升高可能与疲劳、压力或睡眠不足有关。</div>';
+      '<div class="kvrow"><span class="k">夜间心率</span><span class="v num">'+((lastSleepDay()&&lastSleepDay().sleep.avgHeartRate)||'--')+' bpm</span></div></div>';
+    // 个人心率基线（从手表历史数据自动提取，无需手填）
+    if(autop){
+      h+='<div class="card"><div class="ctitle"><i style="background:'+C.purple+'"></i>个人心率基线 <span style="color:'+C.mint+';font-size:10px;font-weight:600;letter-spacing:0;text-transform:none">⌁ 手表自动获取</span></div>'+
+        '<div class="pred-grid" style="margin:12px 0 4px">'+
+          '<div class="pred-cell"><div class="k">静息心率</div><div class="v num" style="color:'+C.mint+'">'+(hb.restHr||'--')+'<small style="font-size:10px;color:var(--sub2)"> bpm</small></div><div class="sub">'+(hb.restSource||'数据不足')+'</div></div>'+
+          '<div class="pred-cell"><div class="k">最大心率</div><div class="v num" style="color:'+C.red+'">'+(hb.maxHr||'--')+'<small style="font-size:10px;color:var(--sub2)"> bpm</small></div><div class="sub">'+(hb.maxSource||'数据不足')+'</div></div>'+
+        '</div>'+
+        '<div class="hint">静息心率取多日夜间最低心率的稳健中位值，最大心率取历史运动实测峰值，均来自你的手表真实数据，无需手动填写。静息心率长期下降通常意味心肺改善，短期升高可能与疲劳、压力或睡眠不足有关。</div></div>';
+    }
+    h+='<div class="card"><div class="ctitle"><i style="background:'+C.red+'"></i>今日分时心率（00–24 时）</div>'+hourChart(ser,C.red)+'</div>'+
+      '<div class="hint">这是当天每小时的平均心率曲线。</div>';
+    return h;
   }
   // 血氧（当天分时）
   if(t==='spo2'){
@@ -1528,9 +1569,11 @@ function detailPage(){
 }
 function openEx(i){detail='exercise';exOpen=i;render();window.scrollTo(0,0)}
 
-/** 最大心率估算：优先本场实测 maxHr，其次身体资料年龄(Tanaka 208-0.7×age)，否则 190 */
+/** 最大心率：优先手表历史实测自动基线，其次本场实测，最后年龄公式(Tanaka) */
 function maxHeartRate(e){
-  if(e&&e.maxHr>120)return e.maxHr;
+  var b=hrBaseline();
+  if(b.maxHr>=140)return b.maxHr;           // 从手表历史运动自动提取的个人最大心率
+  if(e&&e.maxHr>120)return e.maxHr;         // 本场实测峰值
   var p=(window.__getProfile?window.__getProfile():{})||{};
   if(p.age>16)return Math.round(208-0.7*p.age);
   return 190;
@@ -1568,7 +1611,9 @@ function hrZoneCard(e){
   // 主场区间：占比最高的区间
   var top=0;for(var i=1;i<5;i++)if(counts[i]>counts[top])top=i;
   var high=counts[3]+counts[4],highPct=Math.round(high/total*100);
-  var h='<div class="card"><div class="ctitle"><i style="background:'+defs[top].c+'"></i>心率区间分布 <span style="color:var(--sub2);font-weight:500;text-transform:none;letter-spacing:0;font-size:10px">· 最大心率 '+hrmax+' bpm</span></div>'+
+  var b=hrBaseline();
+  var hrSrc=(b.maxHr>=140&&b.maxHr===hrmax)?'手表实测':(e&&e.maxHr===hrmax?'本场实测':'年龄估算');
+  var h='<div class="card"><div class="ctitle"><i style="background:'+defs[top].c+'"></i>心率区间分布 <span style="color:var(--sub2);font-weight:500;text-transform:none;letter-spacing:0;font-size:10px">· 最大心率 '+hrmax+' bpm · '+hrSrc+'</span></div>'+
     '<div class="zones">'+rows+'</div>'+
     '<div class="zone-bar">'+bar+'</div>'+
     '<div class="zone-summary"><span>低强度 Z1–Z2 '+Math.round((counts[0]+counts[1])/total*100)+'%</span><span>高强度 Z4–Z5 '+highPct+'%</span></div>'+
