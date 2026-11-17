@@ -408,6 +408,8 @@ html,body{background:var(--bg);color:var(--text);
 .modal-box{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:rise .3s both}
 .modal-h{font-size:17px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
 .modal-h .x{font-size:20px;color:var(--sub);cursor:pointer;padding:2px 8px}
+.rw-tab{flex:1;text-align:center;padding:10px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;color:var(--sub);background:var(--card2);border:1px solid var(--line);transition:.2s}
+.rw-tab.on{color:var(--text);background:var(--tint2);border-color:var(--line)}
 .fl{display:block;font-size:11px;color:var(--sub);margin:12px 0 5px;font-weight:700}
 .fi{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);
   font-size:13px;padding:10px 11px;outline:none;font-family:inherit}
@@ -1418,6 +1420,54 @@ function openProfile(){
 }
 function closeProfile(){var m=document.getElementById('pfModal');if(m)m.remove()}
 
+/* ==================== 请作者喝奶茶（赞赏）==================== */
+function openReward(){
+  var html='<div class="modal" id="rewardModal" onclick="if(event.target===this)closeReward()"><div class="modal-box" style="max-width:400px">'+
+    '<div class="modal-h"><span>🧋 请作者喝杯奶茶</span><span class="x" onclick="closeReward()">✕</span></div>'+
+    '<div class="segdesc" style="margin:10px 0 14px;text-align:center">如果对这个软件满意，可不可以请作者喝个奶茶。<br>你的支持是我继续打磨下去的动力 ✨</div>'+
+    '<div class="seg2" style="margin-bottom:14px">'+
+      '<div id="rwTabWx" class="rw-tab on" onclick="rwSwitch(\'wx\')">💚 微信</div>'+
+      '<div id="rwTabAli" class="rw-tab" onclick="rwSwitch(\'ali\')">💙 支付宝</div>'+
+    '</div>'+
+    '<div style="text-align:center;background:#fff;border-radius:16px;padding:12px">'+
+      '<img id="rwImg" src="reward/wechat.png" alt="赞赏码" style="width:100%;max-width:300px;height:auto;border-radius:10px;display:block;margin:0 auto">'+
+    '</div>'+
+    '<div class="segdesc" style="text-align:center;font-size:11px;margin-top:12px">长按识别二维码 · 微信或支付宝扫一扫</div>'+
+    '</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+function closeReward(){var m=document.getElementById('rewardModal');if(m)m.remove()}
+/* 原创溯源标识（构建指纹）——二改者若抹掉署名，此隐藏信息仍可验证原始出处 */
+var WATCHAI_ORIGIN={author:'酷安 @想吃薯片zz',project:'腕上智析 WatchAI',repo:'github.com/ZXZ22Y/watchai',build:'WATCHAI-ORIGIN-ByCoolapk-XiangChiShuaiPianZZ-2026'};
+var __originHits=0,__originTimer=null;
+function __originTap(ev){
+  if(ev&&ev.stopPropagation)ev.stopPropagation();
+  __originHits++;
+  clearTimeout(__originTimer);
+  __originTimer=setTimeout(function(){__originHits=0},1600);
+  if(__originHits>=8){__originHits=0;showOrigin();}
+}
+function showOrigin(){
+  var o=WATCHAI_ORIGIN;
+  var html='<div class="modal" id="originModal" onclick="if(event.target===this)closeOrigin()"><div class="modal-box" style="max-width:400px">'+
+    '<div class="modal-h"><span>原创信息</span><span class="x" onclick="closeOrigin()">✕</span></div>'+
+    '<div class="segdesc" style="margin:12px 0;text-align:center;line-height:2">'+
+      '本软件为原创作品<br><b style="color:'+C.purple+';font-size:16px">'+esc(o.project)+'</b><br>'+
+      '原作者：<b style="color:'+C.mint+'">'+esc(o.author)+'</b><br>'+
+      '开源：'+esc(o.repo)+'<br>'+
+      '<span style="font-size:10px;color:var(--sub2);word-break:break-all">'+esc(o.build)+'</span></div>'+
+    '<div class="hint" style="text-align:center">二次修改 / 分发请保留原作者署名与开源协议。</div>'+
+    '</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+function closeOrigin(){var m=document.getElementById('originModal');if(m)m.remove()}
+function rwSwitch(which){
+  var img=document.getElementById('rwImg');
+  var w=document.getElementById('rwTabWx'),a=document.getElementById('rwTabAli');
+  if(which==='wx'){if(img)img.src='reward/wechat.png';if(w)w.className='rw-tab on';if(a)a.className='rw-tab'}
+  else{if(img)img.src='reward/alipay.jpg';if(a)a.className='rw-tab on';if(w)w.className='rw-tab'}
+}
+
 /* ==================== 设备页 ==================== */
 function devicePage(){
   var g=DIAG||{};
@@ -1456,6 +1506,11 @@ function devicePage(){
    '<div class="advice"><span class="dot">4</span><span>只显示真实读取到的数据，读不到就留空，绝不填充演示数据</span></div></div>'+
    '<button class="btn" style="color:'+C.blue+';border-color:'+C.blue+'55;background:'+C.blue+'15" onclick="__openMi()">打开小米运动健康</button>'+
    '<button class="btn" style="color:'+C.green+';border-color:'+C.green+'55;background:'+C.green+'15" onclick="__openSettings()">Root / 命名空间设置</button>';
+  // ---- 支持作者 ----
+  h+='<div class="card tap" onclick="openReward()" style="margin-top:14px;text-align:center;background:linear-gradient(150deg,'+C.purple+'14,'+C.orange+'12)">'+
+     '<div style="font-size:26px;line-height:1;margin-bottom:8px" onclick="__originTap(event)">🧋</div>'+
+     '<div style="font-size:15px;font-weight:800;color:var(--text)" onclick="__originTap(event)">如果对这个软件满意，可不可以请作者喝个奶茶</div>'+
+     '<div class="segdesc" style="margin-top:8px;font-size:11px">点这里展开微信 / 支付宝赞赏码 <span style="color:'+C.orange+'">›</span></div></div>';
   return h;
 }
 function sr(ok,label,detail){var c=ok?C.green:C.red;

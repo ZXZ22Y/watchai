@@ -1,3 +1,12 @@
+/*
+ * ============================================================
+ * 腕上智析 WatchAI  —  原创作品，请勿去除本声明
+ * 原作者：酷安 @想吃薯片zz
+ * 开源地址：https://github.com/ZXZ22Y/watchai
+ * 本文件为原作者编写，二次修改/分发请保留出处与署名。
+ * 溯源标识：WATCHAI-ORIGIN-ByCoolapk-XiangChiShuaiPianZZ-2026
+ * ============================================================
+ */
 package com.example.watchai;
 
 import android.app.Activity;
@@ -27,6 +36,10 @@ import org.json.JSONObject;
 
 /** 主容器：WebView 加载 Apple 风格界面，后台用 root 从「小米运动健康」私有库读真实数据 */
 public class MainActivity extends Activity {
+
+    /** 原创溯源构建指纹：二改者抹掉注释后仍可从 dex 中检索到原始出处 */
+    public static final String ORIGIN_FINGERPRINT =
+            "WATCHAI-ORIGIN-ByCoolapk-XiangChiShuaiPianZZ-2026|github.com/ZXZ22Y/watchai|酷安@想吃薯片zz";
 
     private WebView web;
     private String lastDataJson = "null";

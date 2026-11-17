@@ -1,5 +1,7 @@
 # 腕上智析 · WatchAI
 
+> 作者：**酷安 @想吃薯片zz**
+
 一款面向小米手表的 Android 健康数据分析 App。它**不接入第三方同步服务、不使用任何演示数据**，而是通过 Root 权限直接读取「小米运动健康」写入本机的真实健康数据库，并以 Apple 健康 / 主流运动 App 的风格呈现睡眠、运动、恢复与专业跑步指标。
 
 > 所有分析均为**本机离线计算**，不上传任何健康数据，无需注册、无需联网、无需付费。
@@ -111,3 +113,20 @@ app/src/main/
 ## License
 
 见 [LICENSE](LICENSE)（MIT）。
+
+---
+
+## ☕ 如果对这个软件满意，可不可以请作者喝个奶茶
+
+作者：**酷安 @想吃薯片zz**
+
+如果这个 App 对你有帮助，欢迎请作者喝杯奶茶，支持后续继续打磨更新。长按识别下方二维码即可，微信与支付宝均可。
+
+<table>
+  <tr>
+    <td align="center"><b>微信</b><br><img src="app/src/main/assets/app/reward/wechat.png" width="240"></td>
+    <td align="center"><b>支付宝</b><br><img src="app/src/main/assets/app/reward/alipay.jpg" width="240"></td>
+  </tr>
+</table>
+
+> 本项目开源、完全免费，赞赏纯属自愿，不影响任何功能。二开 / 二次分发请保留原作者署名（酷安 @想吃薯片zz）与开源协议。
