@@ -132,6 +132,32 @@ public class DataJsonBuilder {
             hb.put("maxSamples", baseline.maxSamples);
             o.put("hrBaseline", hb);
 
+            // 内置 AI 健康异常提示（基于个人基线的可解释偏离检测，仅健康提醒非诊断）
+            try {
+                com.example.watchai.analysis.HealthAnomalyDetector.Result al =
+                        com.example.watchai.analysis.HealthAnomalyDetector.evaluate(data);
+                JSONObject ja = new JSONObject();
+                ja.put("level", al.level);
+                ja.put("label", al.label);
+                ja.put("riskScore", al.riskScore);
+                ja.put("confidence", al.confidence);
+                ja.put("hasAlert", al.hasAlert);
+                ja.put("confounded", al.confounded);
+                ja.put("confounderText", al.confounderText);
+                ja.put("headline", al.headline);
+                ja.put("advice", al.advice);
+                ja.put("disclaimer", com.example.watchai.analysis.HealthAnomalyDetector.DISCLAIMER);
+                ja.put("baselineNights", al.baselineNights);
+                JSONArray jr = new JSONArray();
+                for (com.example.watchai.analysis.HealthAnomalyDetector.Reason rs : al.reasons) {
+                    JSONObject j = new JSONObject();
+                    j.put("metric", rs.metric); j.put("detail", rs.detail); j.put("contribution", rs.contribution);
+                    jr.put(j);
+                }
+                ja.put("reasons", jr);
+                o.put("healthAlert", ja);
+            } catch (Exception ignored) { }
+
             // 锻炼记录（含专业跑步动态 + 逐点轨迹/曲线）
             JSONArray exs = new JSONArray();
             if (data.exercises != null) {
@@ -234,6 +260,30 @@ public class DataJsonBuilder {
                 c.put("todayAdvice", rep.todayAdvice);
                 c.put("readiness", rep.readiness);
                 c.put("readiness10", rep.readiness10);
+                // 三步方案字段
+                c.put("redFlag", rep.redFlag);
+                c.put("redFlagText", rep.redFlagText);
+                c.put("recoveryScore", rep.recoveryScore);
+                c.put("sleepScore", rep.sleepScore);
+                c.put("loadScore", rep.loadScore);
+                c.put("subjectiveMod", rep.subjectiveMod);
+                c.put("hrvScore", rep.hrvScore); c.put("rhrScore", rep.rhrScore);
+                c.put("respSpo2Score", rep.respSpo2Score); c.put("tempScore", rep.tempScore);
+                c.put("sleepDurationScore", rep.sleepDurationScore);
+                c.put("sleepStructureScore", rep.sleepStructureScore);
+                c.put("sleepRegularScore", rep.sleepRegularScore);
+                c.put("loadRatioScore", rep.loadRatioScore);
+                c.put("yesterdayLoadScore", rep.yesterdayLoadScore);
+                c.put("consecutiveLoadScore", rep.consecutiveLoadScore);
+                c.put("rhrText", rep.rhrText); c.put("spo2Text", rep.spo2Text); c.put("tempText", rep.tempText);
+                c.put("durText", rep.durText); c.put("structText", rep.structText); c.put("regText", rep.regText);
+                c.put("loadRatioText", rep.loadRatioText); c.put("yestLoadText", rep.yestLoadText); c.put("consText", rep.consText);
+                c.put("tier", rep.tier);
+                c.put("tierAdvice", rep.tierAdvice);
+                c.put("reboundText", rep.reboundText);
+                c.put("detailText", rep.detailText);
+                c.put("prevDate", rep.prevDate);
+                // 兼容旧字段
                 c.put("durationPart", rep.durationPart);
                 c.put("deepPart", rep.deepPart);
                 c.put("remPart", rep.remPart);

@@ -20,6 +20,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -30,9 +32,16 @@ import com.example.watchai.data.CloudAI;
 import com.example.watchai.data.DataJsonBuilder;
 import com.example.watchai.data.DiagReport;
 import com.example.watchai.data.MiHealthReader;
+import com.example.watchai.data.WorkoutExporter;
+import com.example.watchai.model.Exercise;
 import com.example.watchai.model.HealthDataSet;
 
 import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.List;
 
 /** 主容器：WebView 加载 Apple 风格界面，后台用 root 从「小米运动健康」私有库读真实数据 */
 public class MainActivity extends Activity {
@@ -45,6 +54,8 @@ public class MainActivity extends Activity {
     private String lastDataJson = "null";
     private String lastDiagJson = "null";
     private long lastUpdateMs = 0L;
+    /** 完整原始锻炼对象（未降采样），专供导出使用，保证数据零丢失 */
+    private volatile List<Exercise> rawExercises = null;
 
     private volatile boolean loading = false;
 
@@ -177,6 +188,94 @@ public class MainActivity extends Activity {
                 } catch (Exception e) {
                     Toast.makeText(MainActivity.this, "无法打开设置页", Toast.LENGTH_SHORT).show();
                 }
+            });
+        }
+
+        /**
+         * 导出单场运动（佳明 Garmin Connect / Strava / 两步路 / 行者可识别）。
+         * 优先用【完整原始 Exercise 对象】生成，保证轨迹点、曲线、所有字段一个不落；
+         * format: "tcx"=佳明原生 / "gpx"=通用 / "json"=全量原始数据。
+         * @param index 锻炼在列表中的序号（对应前端 exercises()[i]）
+         */
+        @JavascriptInterface
+        public void exportWorkout(final int index, final String format) {
+            new Thread(() -> {
+                String toast;
+                try {
+                    List<Exercise> exs = rawExercises;
+                    if (exs == null || index < 0 || index >= exs.size()) {
+                        toast = "数据尚未就绪，请先同步后重试";
+                    } else {
+                        Exercise ex = exs.get(index);
+                        JSONObject e = WorkoutExporter.fromExercise(ex); // 完整对象，零降采样
+                        String fmt = format == null ? "tcx" : format.toLowerCase(java.util.Locale.US);
+                        String content, ext, mime;
+                        if ("json".equals(fmt)) {
+                            content = WorkoutExporter.toRawJson(ex); ext = "json"; mime = "application/json";
+                        } else if ("gpx".equals(fmt)) {
+                            content = WorkoutExporter.toGpx(e); ext = "gpx"; mime = "application/gpx+xml";
+                        } else {
+                            content = WorkoutExporter.toTcx(e); ext = "tcx"; mime = "application/vnd.garmin.tcx+xml";
+                        }
+                        String fileName = WorkoutExporter.fileName(e, ext, ex.startSec);
+                        Uri uri = writeExport(fileName, content.getBytes("UTF-8"), mime);
+                        if (uri != null) {
+                            shareFile(uri, mime);
+                            toast = "已导出全量数据：" + fileName;
+                        } else {
+                            toast = "导出失败，请重试";
+                        }
+                    }
+                } catch (Exception ex2) {
+                    toast = "导出失败：" + (ex2.getMessage() == null ? "数据异常" : ex2.getMessage());
+                }
+                final String t = toast;
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, t, Toast.LENGTH_LONG).show());
+            }).start();
+        }
+
+        /** 写导出文件：API29+ 用 MediaStore 落到公共 Download；低版本写外部私有目录。返回可分享 Uri。 */
+        private Uri writeExport(String fileName, byte[] bytes, String mime) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    android.content.ContentValues cv = new android.content.ContentValues();
+                    cv.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+                    cv.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+                    cv.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+                    Uri uri = getContentResolver().insert(MediaStore.Files.getContentUri("external"), cv);
+                    if (uri != null) {
+                        OutputStream os = getContentResolver().openOutputStream(uri);
+                        if (os != null) { os.write(bytes); os.flush(); os.close(); return uri; }
+                    }
+                }
+            } catch (Exception ignored) { }
+            // 回退：应用外部私有目录 Download/
+            try {
+                File dir = new File(getExternalFilesDir(null), "Download");
+                if (!dir.exists()) dir.mkdirs();
+                File f = new File(dir, fileName);
+                FileOutputStream fos = new FileOutputStream(f);
+                fos.write(bytes); fos.flush(); fos.close();
+                try {
+                    android.content.ContentValues cv = new android.content.ContentValues();
+                    cv.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+                    cv.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+                    return MediaStore.Files.getContentUri("external");
+                } catch (Exception ignored) { }
+                return Uri.fromFile(f);
+            } catch (Exception e) { return null; }
+        }
+
+        /** 系统分享导出文件（可发给佳明/微信/网盘，或另存）。 */
+        private void shareFile(Uri uri, String mime) {
+            runOnUiThread(() -> {
+                try {
+                    Intent send = new Intent(Intent.ACTION_SEND);
+                    send.setType(mime);
+                    send.putExtra(Intent.EXTRA_STREAM, uri);
+                    send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(send, "导出运动文件"));
+                } catch (Exception ignored) { }
             });
         }
 
@@ -437,6 +536,8 @@ public class MainActivity extends Activity {
                 MiHealthReader reader = new MiHealthReader();
                 data = reader.read(this);
                 diag = reader.diag;
+                // 缓存完整原始锻炼对象（导出用，绝不降采样）
+                rawExercises = data != null ? data.exercises : null;
                 // 读取身体资料，用于 VO2max 个体化校正
                 SharedPreferences psp = getSharedPreferences("watchai_profile", MODE_PRIVATE);
                 DataJsonBuilder.ProfileInput prof = new DataJsonBuilder.ProfileInput();

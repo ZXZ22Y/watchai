@@ -28,13 +28,28 @@ public class AICoach {
         public String headline = "";
         public String summary = "";
         public String todayAdvice = "";
-        public int readiness;              // 内部 0-100，结合睡眠结构 + HRV 恢复修正
+        public int readiness;              // 百分制综合分 0-100（按三步方案）
         public int readiness10;            // 对外展示 1-10 分
-        // 准备度构成（内部参考）：睡眠结构主导，HRV 按个人基线做小幅修正
+        // ---- 新评分方案字段 ----
+        public boolean redFlag = false;              // 第0步 红旗命中
+        public String redFlagText = "";
+        public int recoveryScore = 0, sleepScore = 0, loadScore = 0, subjectiveMod = 0; // 三大项 /40 /35 /25
+        public int hrvScore = 0, rhrScore = 0, respSpo2Score = 0, tempScore = 0;        // 恢复信号明细
+        public int sleepDurationScore = 0, sleepStructureScore = 0, sleepRegularScore = 0; // 睡眠明细
+        public int loadRatioScore = 0, yesterdayLoadScore = 0, consecutiveLoadScore = 0;   // 负荷明细
+        public String rhrText = "", spo2Text = "", tempText = "";
+        public String durText = "", structText = "", regText = "";
+        public String loadRatioText = "", yestLoadText = "", consText = "";
+        public String tier = "";           // 好/正常/偏低/差/很差
+        public String tierAdvice = "";     // 第2步 分档对应训练
+        public String reboundText = "";    // 第3步 当天可回补
+        public String detailText = "";     // 评分构成明细（多行）
+        // ---- 兼容旧展示字段 ----
         public int durationPart, deepPart, remPart, efficiencyPart, regularityPart;
         public int hrvAdj;                 // HRV 恢复修正（-8..+8）
-        public int sleepPart;              // = readiness，兼容旧字段
+        public int sleepPart;              // 昨晚睡眠质量分（兼容旧字段）
         public int sleepDebtMin;           // 睡眠债（分钟，正=欠）
+        public String prevDate = "";       // 评估基准日期 yyyy-MM-dd
         public String regularityText = "";
         public String debtText = "";
         public String hrvText = "";        // HRV 恢复解读（相对个人基线）
@@ -48,9 +63,11 @@ public class AICoach {
     private HealthDataSet data;
     private final List<DayHealth> days = new ArrayList<DayHealth>();
     private DayHealth latest;              // 最近一天
+    private DayHealth prev;                // 前一天（用于准备度的白天数据）
     private SleepRecord sleep;             // 最近一晚
     private int latestScore;
     private SleepQuality.Result sq;        // 睡眠驱动评估
+    private ReadinessScore.Result rs;      // 综合准备度评估（睡眠 + 前一天数据）
 
     public static Report analyze(HealthDataSet d) {
         return new AICoach().build(d);
@@ -73,8 +90,11 @@ public class AICoach {
         }
         latestScore = SleepScorer.score(sleep).score;
         sq = SleepQuality.eval(days);
-        r.readiness = sq.score;            // 内部：睡眠结构 + HRV 恢复修正
-        r.readiness10 = Math.max(1, Math.min(10, (int) Math.round(sq.score / 10f))); // 对外 1-10
+        // 综合准备度：三步方案（红旗筛查 → 三项打分 → 分档建议）
+        rs = ReadinessScore.evaluate(d);
+        r.readiness = rs.score;
+        r.readiness10 = rs.readiness10;
+        prev = findPrev();
         fillParts(r);
         r.sleepAnalysis = sleepAnalysis();
         r.sportAnalysis = sportAnalysis();
@@ -87,36 +107,83 @@ public class AICoach {
         return r;
     }
 
-    // ---------- 准备度：睡眠结构主导（约80%），HRV 按个人基线做恢复修正（约20%以内） ----------
-    private int readiness() { return sq != null ? sq.score : 0; }
+    // ---------- 准备度：三步方案综合分 ----------
+    private int readiness() { return rs != null ? rs.score : (sq != null ? sq.score : 0); }
+
+    /** 找前一天（与 ReadinessScore 同口径），用于文案里引用白天数据。 */
+    private DayHealth findPrev() {
+        int n = days.size();
+        if (n < 2) return null;
+        DayHealth lt = days.get(n - 1);
+        if (lt.date != null && lt.date.length() == 10) {
+            try {
+                java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.CHINA);
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.setTime(f.parse(lt.date));
+                cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+                String want = f.format(cal.getTime());
+                for (int i = n - 2; i >= 0; i--) if (want.equals(days.get(i).date)) return days.get(i);
+            } catch (Exception ignored) { }
+        }
+        for (int i = n - 2; i >= 0; i--) if (days.get(i) != null) return days.get(i);
+        return null;
+    }
 
     private void fillParts(Report r) {
-        if (sq == null) return;
-        r.sleepPart = sq.score;
-        r.durationPart = sq.durationScore;
-        r.deepPart = sq.deepScore;
-        r.remPart = sq.remScore;
-        r.efficiencyPart = sq.efficiencyScore;
-        r.regularityPart = sq.regularityScore;
-        r.hrvAdj = sq.hrvAdj;
-        r.sleepDebtMin = sq.debtMin;
-        r.regularityText = sq.regularityText;
-        r.debtText = sq.debtText;
-        r.hrvText = sq.hrvText;
+        // 新评分方案全字段（来自 ReadinessScore）
+        if (rs != null) {
+            r.redFlag = rs.redFlag;
+            r.redFlagText = rs.redFlagText;
+            r.recoveryScore = rs.recoveryScore;
+            r.sleepScore = rs.sleepScore;
+            r.loadScore = rs.loadScore;
+            r.subjectiveMod = rs.subjectiveMod;
+            r.hrvScore = rs.hrvScore; r.rhrScore = rs.rhrScore;
+            r.respSpo2Score = rs.respSpo2Score; r.tempScore = rs.tempScore;
+            r.sleepDurationScore = rs.sleepDurationScore;
+            r.sleepStructureScore = rs.sleepStructureScore;
+            r.sleepRegularScore = rs.sleepRegularScore;
+            r.loadRatioScore = rs.loadRatioScore;
+            r.yesterdayLoadScore = rs.yesterdayLoadScore;
+            r.consecutiveLoadScore = rs.consecutiveLoadScore;
+            r.rhrText = rs.rhrText; r.spo2Text = rs.spo2Text; r.tempText = rs.tempText;
+            r.durText = rs.durText; r.structText = rs.structText; r.regText = rs.regText;
+            r.loadRatioText = rs.loadRatioText; r.yestLoadText = rs.yestLoadText; r.consText = rs.consText;
+            r.tier = rs.tier; r.tierAdvice = rs.tierAdvice;
+            r.reboundText = rs.reboundText; r.detailText = rs.detailText;
+            r.prevDate = rs.prevDate;
+        }
+        // 兼容旧展示字段：优先取 ReadinessScore 透传的睡眠质量分项，否则用 sq
+        if (rs != null && rs.sleepPart > 0) {
+            r.sleepPart = rs.sleepPart;
+            r.durationPart = rs.durationPart; r.deepPart = rs.deepPart; r.remPart = rs.remPart;
+            r.efficiencyPart = rs.efficiencyPart; r.regularityPart = rs.regularityPart;
+            r.hrvAdj = rs.hrvAdj; r.sleepDebtMin = rs.sleepDebtMin;
+            r.regularityText = rs.regularityText; r.debtText = rs.debtText;
+        } else if (sq != null) {
+            r.sleepPart = sq.score;
+            r.durationPart = sq.durationScore; r.deepPart = sq.deepScore; r.remPart = sq.remScore;
+            r.efficiencyPart = sq.efficiencyScore; r.regularityPart = sq.regularityScore;
+            r.hrvAdj = sq.hrvAdj; r.sleepDebtMin = sq.debtMin;
+            r.regularityText = sq.regularityText; r.debtText = sq.debtText;
+        }
+        if (sq != null && sq.hrvText != null) r.hrvText = sq.hrvText;
     }
 
     private String readinessLabel(int v) {
-        if (v >= 85) return "状态出色";
-        if (v >= 70) return "状态良好";
-        if (v >= 55) return "状态一般";
-        return "需要恢复";
+        // 严格对齐方案第2步分档：≥80 好 / 65-79 正常 / 50-64 偏低 / 35-49 差 / <35 很差
+        if (v >= 80) return "好";
+        if (v >= 65) return "正常";
+        if (v >= 50) return "偏低";
+        if (v >= 35) return "差";
+        return "很差";
     }
 
     private String headline(int rd) {
+        if (rs != null && rs.redFlag) return "身体发出警报，今天建议休息";
         String name = readinessLabel(rd);
         if (sleep != null && sleep.hasData()) {
-            String slept = rd >= 70 ? "昨晚睡得不错" : rd >= 55 ? "昨晚睡得一般" : "昨晚没睡好";
-            return slept + "，今天" + name;
+            return "昨晚睡眠 + 前一天状态综合评估：今天" + name;
         }
         return "今天" + name;
     }
@@ -140,31 +207,38 @@ public class AICoach {
             else sb.append("，与平均持平");
             sb.append("。\n\n");
         }
-        // 活动与锻炼
-        int steps = latest != null ? latest.steps : 0;
+        // 前一天活动与恢复（准备度的白天数据口径）
+        DayHealth day = prev;
+        int steps = day != null ? day.steps : 0;
         int wMin = weekExerciseMinutes(), wCnt = weekExerciseCount();
-        sb.append("今日 ").append(steps).append(" 步");
-        if (latest != null && latest.avgHeartRate > 0) sb.append("，平均心率 ").append(latest.avgHeartRate).append(" bpm");
-        if (latest != null && latest.spo2 > 0) sb.append("，血氧 ").append(latest.spo2).append("%");
+        sb.append(day != null ? "前一天（" + day.date + "）" : "近期 ").append(steps).append(" 步");
+        if (day != null && day.avgHeartRate > 0) sb.append("，平均心率 ").append(day.avgHeartRate).append(" bpm");
+        if (day != null && day.stress > 0) sb.append("，压力 ").append(day.stress);
         sb.append("。近 7 天锻炼 ").append(wCnt).append(" 次、累计 ").append(wMin).append(" 分钟");
         sb.append(wMin >= 150 ? "，已达到世卫组织每周 150 分钟建议。" : "，距离每周 150 分钟建议还差 " + Math.max(0, 150 - wMin) + " 分钟。");
-        // 训练负荷与恢复
-        if (latest != null && latest.trainingLoad > 0) {
-            sb.append("\n\n当前训练负荷 ").append(latest.trainingLoad);
-            if (sleep != null && sleep.avgHrv > 0 && sleep.avgHrv < 35 && latest.trainingLoad > 60)
-                sb.append("，而 HRV 偏低，提示负荷与恢复不匹配，建议安排轻松日。");
-            else sb.append("，与恢复状态基本匹配。");
+        // 新方案综合结论
+        if (rs != null) {
+            sb.append("\n\n综合恢复信号 ").append(rs.recoveryScore).append("/40、睡眠 ")
+              .append(rs.sleepScore).append("/35、负荷 ").append(rs.loadScore)
+              .append("/25，准备度 ").append(rs.score).append("/100（").append(rs.tier).append("）。");
+            if (rs.redFlag) sb.append(" ").append(rs.redFlagText);
+        } else if (day != null && day.trainingLoad > 0) {
+            sb.append("\n\n前一天训练负荷 ").append(day.trainingLoad)
+              .append("，结合恢复状态安排今天的强度。");
         }
         return sb.toString().trim();
     }
 
     private String todayAdvice() {
+        if (rs != null && rs.redFlag) return "检测到红旗信号，今天休息：拉伸、热水澡、补觉，暂不安排训练。";
         int rd = r0();
         if (sleep == null || !sleep.hasData()) return "还没有昨晚睡眠数据，建议先同步；今天可按平时节奏活动。";
-        if (rd >= 85) return "睡眠与恢复都很好，今天适合安排高质量训练（间歇、节奏跑或力量大重量）。";
-        if (rd >= 70) return "状态不错，适合中等强度有氧或常规力量训练，注意热身与补水。";
-        if (rd >= 55) return "恢复一般，建议低到中等强度（快走、轻松骑行、灵活性训练），避免力竭。";
-        return "身体需要恢复：今天以休息、拉伸和早睡为主，暂不安排高强度训练。";
+        // 严格对齐方案第2步：分档对应训练
+        if (rd >= 80) return "状态好：可上强度——间歇、对抗、打全场。";
+        if (rd >= 65) return "状态正常：常规训练，别冲 PR。";
+        if (rd >= 50) return "状态偏低：降 30% 强度，以技术 / 力量训练为主。";
+        if (rd >= 35) return "状态差：只做低强度有氧 20~30 分钟。";
+        return "状态很差：休息、拉伸、热水澡、补觉。";
     }
 
     private int r0() { return readiness(); }
@@ -286,25 +360,20 @@ public class AICoach {
         return sb.toString().trim();
     }
 
-    /** 把睡眠、恢复、负荷整合成一条可执行的今日建议 */
+    /** 三步方案的可执行训练建议：红旗 → 分档结论 → 回补说明 */
     private String trainingAdvice() {
         StringBuilder sb = new StringBuilder();
-        int rd = r0();
-        int load = latest != null ? latest.trainingLoad : 0;
-        if (sleep == null || !sleep.hasData()) {
-            sb.append("暂无昨晚睡眠数据，无法评估恢复状态。建议先同步手表，今天按常规强度活动即可。");
-            return sb.toString();
+        if (rs != null && rs.redFlag) {
+            sb.append("红旗筛查命中，今天休息。").append(rs.redFlagText);
+        } else {
+            sb.append(todayAdvice());
         }
-        // 以睡眠准备度为主导给结论
-        if (rd >= 80) sb.append("睡眠恢复充分，今天可以安排中等到高强度训练（节奏跑、间歇或力量），身体有能力承受。");
-        else if (rd >= 65) sb.append("睡眠恢复尚可，今天适合常规强度的有氧或力量训练，注意热身。");
-        else if (rd >= 50) sb.append("睡眠一般，建议低强度活动（快走、拉伸、轻松骑行），把高强度留到睡好之后。");
-        else sb.append("睡眠不足，今天以休息和轻度活动为主，优先补足睡眠再谈强度。");
         // 睡眠债提醒
         if (sq != null && sq.debtMin > 180) sb.append(" 你还有较明显的睡眠债，今晚尽量提前 30–60 分钟入睡。");
-        // 负荷与恢复的匹配（旁证）
-        if (load >= 75 && rd < 65) sb.append(" 当前训练负荷偏高而恢复一般，建议今天减量，避免累积疲劳。");
-        return sb.toString();
+        // 第3步：当天可回补（低分时给出回升空间，避免"废一天"心态）
+        int rd = r0();
+        if (rs != null && rd < 65) sb.append(" ").append(rs.reboundText);
+        return sb.toString().trim();
     }
 
     private String qaLoad() {

@@ -515,6 +515,17 @@ function exercises(){return (DATA&&DATA.exercises)?DATA.exercises:[]}
 function coach(){return (DATA&&DATA.coach)?DATA.coach:null}
 function scores(){return (DATA&&DATA.scores)?DATA.scores:[]}
 function hrBaseline(){return (DATA&&DATA.hrBaseline)?DATA.hrBaseline:{}}
+function healthAlert(){return (DATA&&DATA.healthAlert)?DATA.healthAlert:null}
+/* 准备度分档（对齐三步方案）：返回 {name,color} —— 红旗优先，其余按百分制 80/65/50/35 */
+function rdLevel(c){
+  if(c&&c.redFlag)return {name:'需休息',color:C.red};
+  var v=(c&&c.readiness)||0;
+  if(v>=80)return {name:'好',color:C.green};
+  if(v>=65)return {name:'正常',color:C.blue};
+  if(v>=50)return {name:'偏低',color:C.yellow};
+  if(v>=35)return {name:'差',color:C.orange};
+  return {name:'很差',color:C.red};
+}
 function lastSleepDay(){var a=days();for(var i=a.length-1;i>=0;i--)if(a[i].sleep&&a[i].sleep.totalMinutes>0)return a[i];return null}
 function lastScore(){var a=scores();for(var i=a.length-1;i>=0;i--)if(a[i]&&a[i].score>0)return a[i];return null}
 function ago(){if(!updatedAt)return '';var s=Math.floor((Date.now()-updatedAt)/1000);if(s<10)return '刚刚更新';if(s<60)return s+' 秒前更新';if(s<3600)return Math.floor(s/60)+' 分钟前更新';return Math.floor(s/3600)+' 小时前更新'}
@@ -530,7 +541,7 @@ function bigRing(score,c1,c2,label){
    '<text x="110" y="146" text-anchor="middle" font-size="13" fill="#8e8e93" font-weight="600">'+label+'</text></svg>';
 }
 function readinessArc(v,show){
-  var c=v>=85?[C.green,C.mint]:v>=70?[C.blue,C.teal]:v>=55?[C.yellow,C.orange]:[C.red,'#ff6961'];
+  var c=v>=80?[C.green,C.mint]:v>=65?[C.blue,C.teal]:v>=50?[C.yellow,C.orange]:[C.red,'#ff6961'];
   var cx=59,cy=59,r=48,cir=Math.PI*r,p=clamp(v/100,0,1);
   // 半圆弧：从左(180°)到右(0°)
   var bg='M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+cy;
@@ -972,10 +983,8 @@ function overview(){
   var d=latestDay(),c=coach();
   var rd=c?c.readiness:0;
   var rd10=c&&c.readiness10?c.readiness10:clamp(Math.round(rd/10),1,10);
-  var lc=rd10>=9?C.green:rd10>=7?C.blue:rd10>=5?C.yellow:C.red;
-  var label=rd10>=9?'状态出色':rd10>=7?'状态良好':rd10>=5?'状态一般':'需要恢复';
+  var lvl=rdLevel(c),lc=lvl.color,label=lvl.name;
   var sc=lastScore(),sd=lastSleepDay();
-  var hb=hrBaseline();
   // 每个区块带优先级 p（数字越小越靠前），最后统一按重要性排序——重要数据自动前置
   var blocks=[];
 
@@ -987,11 +996,28 @@ function overview(){
    '<span class="hero-tag" style="color:'+lc+';background:'+lc+'22">'+label+'</span></div></div>'+
    '<div class="hero-sub">';
   if(sd&&sc){
-    hero+='综合昨晚睡眠与身体恢复，今天的准备度为 <b>'+rd10+' 分</b>。'+
+    hero+='综合恢复信号、睡眠与前一天负荷，今天的准备度为 <b>'+rd10+' 分</b>。'+
        '<span style="color:'+C.blue+'"> 查看解读 ›</span>';
   }else hero+='暂无昨晚睡眠数据，同步手表后我会为你评估今天的身体状态。';
   hero+='</div></div>';
   blocks.push({p:10,h:hero});
+
+  // ---- AI 健康异常提示（个人基线偏离，仅提醒非诊断）----
+  var al=healthAlert();
+  if(al){
+    if(al.hasAlert){
+      var lv=al.level==='high'?C.red:al.level==='medium'?C.orange:C.yellow;
+      var ac='<div class="card tap" style="border:1px solid '+lv+'66" onclick="openDetail(\'healthalert\')">'+
+        '<div class="ctitle"><i style="background:'+lv+'"></i>健康异常提示 <span class="more">详情 ›</span></div>'+
+        '<div style="display:flex;align-items:center;gap:12px"><div class="n num" style="color:'+lv+';font-size:26px;font-weight:800">'+esc(al.label)+'</div>'+
+        '<div style="flex:1;font-size:12px;color:var(--sub)">置信度 '+al.confidence+'% · 偏离强度 '+al.riskScore+'/100</div></div>'+
+        '<div class="todaytip" style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px">'+esc(al.headline||'')+'</div></div>';
+      blocks.push({p:12,h:ac});
+    }else if(al.baselineNights>0){
+      blocks.push({p:12,h:'<div class="card tap" onclick="openDetail(\'healthalert\')"><div class="ctitle"><i style="background:'+C.mint+'"></i>健康监测 <span class="more">查看 ›</span></div>'+
+        '<div class="segdesc" style="text-align:center">'+esc(al.headline||'昨晚各项指标与个人基线基本一致')+'（已建立 '+al.baselineNights+' 晚基线）</div></div>'});
+    }
+  }
 
   // ---- 昨晚睡眠（恢复的核心，前置）----
   var sc0=lastScore(),sd0=lastSleepDay();
@@ -1017,16 +1043,6 @@ function overview(){
       debtBadge()+
       '</div>';
     blocks.push({p:20,h:sleepCard});
-  }
-
-  // ---- 个人心率基线（自动获取，核心健康指标，前置）----
-  if(hb.restHr>0||hb.maxHr>0){
-    var hrCard='<div class="card"><div class="ctitle"><i style="background:'+C.red+'"></i>心率基线 <span style="color:'+C.mint+';font-size:10px;font-weight:600;letter-spacing:0;text-transform:none">⌁ 手表自动获取</span><span class="more" onclick="openDetail(\'hr\')">详情 ›</span></div>'+
-      '<div class="pred-grid" style="margin:2px 0 0">'+
-        '<div class="pred-cell"><div class="k">静息心率</div><div class="v num" style="color:'+C.mint+'">'+(hb.restHr||'--')+'<small style="font-size:10px;color:var(--sub2)"> bpm</small></div><div class="sub">'+(hb.restSource||'数据不足')+'</div></div>'+
-        '<div class="pred-cell"><div class="k">最大心率</div><div class="v num" style="color:'+C.red+'">'+(hb.maxHr||'--')+'<small style="font-size:10px;color:var(--sub2)"> bpm</small></div><div class="sub">'+(hb.maxSource||'数据不足')+'</div></div>'+
-      '</div></div>';
-    blocks.push({p:25,h:hrCard});
   }
 
   // ---- 今日活动：Apple 健身风格三环 ----
@@ -1369,10 +1385,10 @@ function aiPage(){
   var c=coach(),h='';
   if(c){
     var rd=c.readiness||0,rd10=c.readiness10||clamp(Math.round(rd/10),1,10);
-    var lc=rd10>=9?C.green:rd10>=7?C.blue:rd10>=5?C.yellow:C.red;
+    var lvl=rdLevel(c),lc=lvl.color;
     h+='<div class="card"><div class="ctitle"><i style="background:'+C.blue+'"></i>今日身体准备度</div>'+
      '<div class="ready-wrap">'+miniRing(rd,C.blue,104,rd10)+'<div class="ready-tx"><div class="ready-h">'+esc(c.headline)+'</div>'+
-     '<span class="ready-l" style="color:'+lc+';background:'+lc+'1f">'+(rd10>=9?'状态出色':rd10>=7?'状态良好':rd10>=5?'状态一般':'需要恢复')+' · '+rd10+'/10</span></div></div>'+
+     '<span class="ready-l" style="color:'+lc+';background:'+lc+'1f">'+lvl.name+' · '+rd10+'/10</span></div></div>'+
      '<div class="todaytip" style="margin-top:14px;border-top:1px solid var(--line);padding-top:13px">'+esc(c.todayAdvice)+'</div></div>';
     // 主流健康 App 核心洞察：周对比 / 睡眠债 / 作息规律
     if(c.weekComparison)h+='<div class="card"><div class="ctitle"><i style="background:'+C.teal+'"></i>状态趋势 · 本周 vs 上周</div><div class="narrative">'+esc(c.weekComparison)+'</div></div>';
@@ -1526,15 +1542,59 @@ function detailPage(){
   if(t==='readiness'){
     var c=coach()||{},rd=c.readiness||0;
     var rd10=c.readiness10||clamp(Math.round(rd/10),1,10);
-    var lc=rd10>=9?C.green:rd10>=7?C.blue:rd10>=5?C.yellow:C.red;
+    var lvl=rdLevel(c),lc=lvl.color;
     var h=subbar('今日身体准备度')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+lc+'">'+rd10+'<small> / 10</small></div><div class="l">'+esc(c.headline||'今天的身体状态')+'</div></div>'+
-      '<div class="todaytip" style="margin-top:14px;border-top:1px solid var(--line);padding-top:13px">'+esc(c.todayAdvice||'')+'</div></div>';
-    // 结果导向的核心洞察（不展示算法构成）
+      '<div class="todaytip" style="margin-top:14px;border-top:1px solid var(--line);padding-top:13px">'+esc(c.tierAdvice||c.todayAdvice||'')+'</div></div>';
+    // 第0步：红旗筛查
+    if(c.redFlag)h+='<div class="card" style="border:1px solid '+C.red+'66"><div class="ctitle"><i style="background:'+C.red+'"></i>红旗筛查 · 建议休息</div><div class="narrative" style="color:'+C.red+'">'+esc(c.redFlagText||'检测到需要警惕的信号，今天建议休息。')+'</div></div>';
+    // 第1步：三项打分构成（可视化条）
+    if(rd>0){
+      var parts=[['恢复信号',c.recoveryScore||0,40,C.blue],['睡眠',c.sleepScore||0,35,SLEEP.deep],['负荷',c.loadScore||0,25,C.orange]];
+      var pb='';
+      parts.forEach(function(p){
+        var pctv=Math.round(p[1]/p[2]*100);
+        pb+='<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--text)">'+p[0]+'</span><span class="num" style="color:'+p[3]+'">'+p[1]+' / '+p[2]+'</span></div>'+
+            '<div style="height:7px;border-radius:6px;background:var(--line);overflow:hidden"><div style="height:100%;width:'+pctv+'%;border-radius:6px;background:'+p[3]+';transition:width .8s"></div></div></div>';
+      });
+      h+='<div class="card"><div class="ctitle"><i style="background:'+C.blue+'"></i>评分构成 <span style="color:var(--sub2);font-weight:500;font-size:11px">· 满分 100</span></div>'+pb+
+         '<div class="segdesc" style="margin-top:4px">恢复信号 40 + 睡眠 35 + 负荷 25'+(c.subjectiveMod?' + 主观修正 '+c.subjectiveMod:'')+' = 总分 '+rd+'/100</div></div>';
+    }
+    // 逐项明细
+    if(c.detailText)h+='<div class="card"><div class="ctitle"><i style="background:'+C.teal+'"></i>逐项评分明细</div><div class="narrative">'+esc(c.detailText)+'</div></div>';
+    // 第3步：当天可回补
+    if(c.reboundText)h+='<div class="card"><div class="ctitle"><i style="background:'+C.mint+'"></i>今天还能回补</div><div class="narrative">'+esc(c.reboundText)+'</div></div>';
+    // 结果导向的核心洞察
     if(c.debtText)h+='<div class="card"><div class="ctitle"><i style="background:'+C.orange+'"></i>睡眠债</div>'+debtBadge()+'<div class="narrative" style="margin-top:11px">'+esc(c.debtText)+'</div></div>';
     if(c.hrvText)h+='<div class="card"><div class="ctitle"><i style="background:'+SLEEP.rem+'"></i>身体恢复</div><div class="narrative">'+esc(c.hrvText)+'</div></div>';
     if(c.regularityText)h+='<div class="card"><div class="ctitle"><i style="background:'+C.teal+'"></i>作息规律</div><div class="narrative">'+esc(c.regularityText)+'</div></div>';
     if(c.sleepAnalysis)h+='<div class="card"><div class="ctitle"><i style="background:'+SLEEP.deep+'"></i>睡眠如何决定状态</div><div class="narrative">'+esc(c.sleepAnalysis)+'</div></div>';
     if(c.trainingAdvice)h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>可执行训练建议</div><div class="narrative">'+esc(c.trainingAdvice)+'</div></div>';
+    return h;
+  }
+  // AI 健康异常提示
+  if(t==='healthalert'){
+    var al=healthAlert();
+    if(!al)return subbar('健康异常提示')+'<div class="empty"><div class="ico">♡</div><h2>暂无数据</h2><p>同步手表睡眠数据后，我会基于你的个人基线识别异常变化。</p></div>';
+    var lv=al.level==='high'?C.red:al.level==='medium'?C.orange:al.level==='low'?C.yellow:C.mint;
+    var h=subbar('健康异常提示')+'<div class="card"><div class="bigmetric"><div class="n num" style="color:'+lv+'">'+esc(al.label)+'</div><div class="l">'+esc(al.headline||'')+'</div></div>'+
+      '<div style="display:flex;gap:10px;margin-top:14px">'+
+        '<div class="pred-cell" style="flex:1"><div class="k">偏离强度</div><div class="v num" style="color:'+lv+'">'+al.riskScore+'<small> /100</small></div></div>'+
+        '<div class="pred-cell" style="flex:1"><div class="k">置信度</div><div class="v num" style="color:'+C.blue+'">'+al.confidence+'<small> %</small></div></div>'+
+      '</div><div class="segdesc" style="margin-top:10px">已建立 '+al.baselineNights+' 晚个人基线 · 基于中位数与 MAD 稳健偏离检测</div></div>';
+    // 触发原因（可解释证据链）
+    if(al.reasons&&al.reasons.length){
+      h+='<div class="card"><div class="ctitle"><i style="background:'+C.orange+'"></i>触发原因</div>';
+      al.reasons.forEach(function(x){
+        h+='<div class="kvrow"><span class="k" style="flex:0 0 34%">'+esc(x.metric)+'</span><span class="v" style="text-align:right;font-size:12px">'+esc(x.detail)+'</span></div>';
+      });
+      h+='</div>';
+    }
+    if(al.confounderText)h+='<div class="card"><div class="ctitle"><i style="background:'+C.yellow+'"></i>干扰因素</div><div class="narrative">'+esc(al.confounderText)+'</div></div>';
+    h+='<div class="card"><div class="ctitle"><i style="background:'+C.green+'"></i>提示与建议</div><div class="narrative">'+esc(al.advice||'')+'</div></div>';
+    // 方法说明
+    h+='<div class="card"><div class="ctitle"><i style="background:'+C.purple+'"></i>检测原理</div>'+
+       '<div class="narrative">先用近 5 晚睡眠数据建立你的个人基线（中位数 + 中位绝对偏差，抗单点异常），再比较昨晚在夜间心率、HRV、睡眠时长、深睡+REM、夜间清醒、血氧等维度的偏离。只有多项指标同向明显变化、且排除前一天大量运动 / 熬夜 / 旅行等干扰后，才会提示风险；单指标波动或数据不足不会误报。参考 Fitbit/Google 的个人基线偏离提醒与可穿戴设备感染早期预警研究设计。</div></div>';
+    h+='<div class="card" style="border:1px solid '+C.red+'55"><div class="narrative" style="color:'+C.red+'">'+esc(al.disclaimer||'本提示仅供健康参考，不构成医疗诊断。')+'</div></div>';
     return h;
   }
   // 心率（当天分时）
@@ -1756,7 +1816,20 @@ function exerciseDetail(i){
       h+='<div class="card curvecard"><div class="curvelabel"><span>'+x[0]+' <span style="color:var(--sub2)">（'+x[3]+'）</span></span><b>'+x[4](avg)+' <span style="color:var(--sub2);font-size:10px;font-weight:500">均值</span></b></div>'+lineChart(x[1],x[2],true,x[3],true)+'</div>';
     });
   }
+  // 导出运动文件（佳明 Garmin Connect / Strava / 两步路等通用格式）—— 全量原始数据，零丢失
+  h+='<div class="card"><div class="ctitle"><i style="background:'+C.purple+'"></i>导出运动文件 <span style="color:var(--mint);font-weight:600;font-size:10px">全量数据</span></div>'+
+     '<div class="segdesc" style="text-align:center;margin-bottom:12px">导出手表解码出的<b>全部轨迹点、全部曲线与所有字段</b>，不做任何降采样。TCX 可导入佳明 Garmin Connect / Strava；GPX 通用；JSON 保留 100% 原始数据。</div>'+
+     '<div style="display:flex;gap:8px;margin-bottom:8px">'+
+       '<button class="btn sm" style="color:'+C.green+';border-color:'+C.green+'55;background:'+C.green+'15" onclick="exportWorkout('+i+',\'tcx\')">TCX · 佳明</button>'+
+       '<button class="btn sm" style="color:'+C.blue+';border-color:'+C.blue+'55;background:'+C.blue+'15" onclick="exportWorkout('+i+',\'gpx\')">GPX · 通用</button>'+
+       '<button class="btn sm" style="color:'+C.purple+';border-color:'+C.purple+'55;background:'+C.purple+'15" onclick="exportWorkout('+i+',\'json\')">JSON · 全量</button>'+
+     '</div></div>';
   return h;
+}
+/* 导出运动文件：传序号，Java 层用完整原始对象生成，保证数据零丢失 */
+function exportWorkout(i,fmt){
+  if(!(window.Android&&window.Android.exportWorkout)){alert('请在 App 内使用导出功能');return}
+  try{window.Android.exportWorkout(i,fmt)}catch(err){alert('导出失败：'+err)}
 }
 function dynCell(k,v,u,j){return '<div class="dyncell"><div class="k">'+k+'</div><div class="v num">'+v+'<small> '+u+'</small></div>'+(j?'<div class="j">'+j+'</div>':'')+'</div>'}
 
