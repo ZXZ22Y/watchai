@@ -1420,11 +1420,11 @@ function openProfile(){
 }
 function closeProfile(){var m=document.getElementById('pfModal');if(m)m.remove()}
 
-/* ==================== 请作者喝奶茶（赞赏）==================== */
+/* ==================== 给作者一个随机的小红包（赞赏）==================== */
 function openReward(){
   var html='<div class="modal" id="rewardModal" onclick="if(event.target===this)closeReward()"><div class="modal-box" style="max-width:400px">'+
-    '<div class="modal-h"><span>🧋 请作者喝杯奶茶</span><span class="x" onclick="closeReward()">✕</span></div>'+
-    '<div class="segdesc" style="margin:10px 0 14px;text-align:center">如果对这个软件满意，可不可以请作者喝个奶茶。<br>你的支持是我继续打磨下去的动力 ✨</div>'+
+    '<div class="modal-h"><span>🧧 给作者一个随机的小红包</span><span class="x" onclick="closeReward()">✕</span></div>'+
+    '<div class="segdesc" style="margin:10px 0 14px;text-align:center">如果对这个软件满意，可以给作者一个随机的小红包。<br>你的支持是我继续打磨下去的动力 ✨</div>'+
     '<div class="seg2" style="margin-bottom:14px">'+
       '<div id="rwTabWx" class="rw-tab on" onclick="rwSwitch(\'wx\')">💚 微信</div>'+
       '<div id="rwTabAli" class="rw-tab" onclick="rwSwitch(\'ali\')">💙 支付宝</div>'+
@@ -1508,8 +1508,8 @@ function devicePage(){
    '<button class="btn" style="color:'+C.green+';border-color:'+C.green+'55;background:'+C.green+'15" onclick="__openSettings()">Root / 命名空间设置</button>';
   // ---- 支持作者 ----
   h+='<div class="card tap" onclick="openReward()" style="margin-top:14px;text-align:center;background:linear-gradient(150deg,'+C.purple+'14,'+C.orange+'12)">'+
-     '<div style="font-size:26px;line-height:1;margin-bottom:8px" onclick="__originTap(event)">🧋</div>'+
-     '<div style="font-size:15px;font-weight:800;color:var(--text)" onclick="__originTap(event)">如果对这个软件满意，可不可以请作者喝个奶茶</div>'+
+     '<div style="font-size:26px;line-height:1;margin-bottom:8px" onclick="__originTap(event)">🧧</div>'+
+     '<div style="font-size:15px;font-weight:800;color:var(--text)" onclick="__originTap(event)">如果对这个软件满意，可以给作者一个随机的小红包</div>'+
      '<div class="segdesc" style="margin-top:8px;font-size:11px">点这里展开微信 / 支付宝赞赏码 <span style="color:'+C.orange+'">›</span></div></div>';
   return h;
 }
